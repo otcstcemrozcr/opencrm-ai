@@ -20,8 +20,8 @@ local-first deploy · stages New→Qualified→Discovery→Meeting→Proposal→
 roles Admin/Manager/Rep/Viewer. Full list: `docs/10_decision_log.md`.
 
 ## Open items
-- Optional: owner final ack on stages (D7) and roles (D8).
-- Not yet created: GitHub private repo `opencrm-ai` + Projects board.
+- GitHub repo created + planning pushed (otcstcemrozcr/opencrm-ai). Projects board not yet set up.
+- Stages (D7) and roles (D8) owner-confirmed — locked.
 
 ## Don't forget
 AI never invents numbers · human approval before commit/push/deploy/send · org_id on every query.

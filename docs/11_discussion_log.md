@@ -18,6 +18,7 @@
   schema, sprint plan, and risk register (R6).
 - Owner requested the plan be written into `docs/` (00–13). Done 2026-06-07.
 
-## Pending confirmations
-- Lifecycle stages and role set were proposed and treated as locked (D7, D8); flagged for owner's
-  final ack if any change desired.
+## Confirmations
+- 2026-06-07: Owner confirmed lifecycle stages (D7) and role set (D8) — "stick to the prompt".
+  Both now locked with owner ack.
+- 2026-06-07: GitHub private repo created (otcstcemrozcr/opencrm-ai), planning commit pushed to main.
