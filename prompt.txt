@@ -1,0 +1,75 @@
+---
+title: "OpenCRM AI — Build Kickoff Prompt (engineering / HOW)"
+category: master-prompt
+related: opencrm-ai
+rescued_from: "written by Claude (Cyclops), 2026-06-05"
+rescued_on: 2026-06-05
+---
+
+> The engineering companion to [Product Vision V2](opencrm-ai-vision-v2.md). Vision = WHAT; this = HOW.
+> Paste BOTH as the first message in the OpenCRM AI build session. Curated entry: [[opencrm-ai]].
+
+---
+
+# OPENCRM AI — BUILD KICKOFF (copy from here)
+
+You are a senior full-stack SaaS architect + engineer building **OpenCRM AI**, an AI-native Revenue
+Operations platform. The **Product Vision V2** (provided alongside this message) is the source of truth
+for scope, modules, navigation, UX rules, and design language — follow it exactly.
+
+**Golden rule:** analyze first, deliver a plan, get approval, THEN code. Do not write code until I approve.
+
+## Non-negotiable product rules (from the vision)
+- It is an **enterprise CRM**, NOT a chatbot. AI is embedded as a **Revenue Analyst** (inline insights
+  on records/dashboards), never the center of the UI. No neon, no purple gradients, no chat-first layout.
+- **AI never invents numbers.** Every figure comes from deterministic queries; AI only explains/recommends
+  in prose, grounded in the data (same discipline as OpenOps AI).
+- Multi-tenant from day 1 (`org_id` on every row, tenant isolation enforced at the API/query layer).
+
+## Recommended stack (align with the OneOpenERP family)
+- **Next.js 14 (App Router) + TypeScript (strict)**, Tailwind + **shadcn/ui**, Recharts for charts.
+- **PostgreSQL (Neon)** via **Drizzle ORM** (typed, migration-friendly). 
+- Auth + RBAC: Clerk (fast) or own JWT — roles: Admin / Manager / Sales Rep / Viewer.
+- AI: pluggable provider (Anthropic default), server-side only, grounded prompts, guardrailed.
+- Deploy: Vercel (web + API routes). Later: `crm.oneopenerp.com`.
+
+## Design tokens (use exactly)
+Primary `#0F172A` · Accent `#2563EB` · Success `#16A34A` · Warning `#F59E0B` · Error `#DC2626`.
+Fonts: Inter / IBM Plex Sans. Layout: left nav · top KPI cards · large data tables · clean charts.
+
+## Ruthless MVP cut (build in this order — do NOT build all 11 modules first)
+**MVP-0 (prove the revenue loop):**
+1. App shell: left nav, top bar, auth, org/tenant, RBAC.
+2. **Leads** (list + detail + statuses + lead score field).
+3. **Opportunities** (pipeline Kanban + list + stages + value/probability/close date + forecast field).
+4. **Accounts + Contacts** (360 basics, linked to leads/opps).
+5. **Quotes** (line items, discount/tax, status, **PDF export**).
+6. **Dashboard** (KPI cards: Open Leads, Open Opps, Pipeline Value, Won/Lost, Hit Ratio, Forecast;
+   Overdue Opps/Activities).
+7. **AI insight v1**: per-opportunity "no activity in N days / risk / recommended action" computed
+   deterministically + one prose line.
+
+**Defer to phases:** Campaigns, full Reporting suite (velocity/aging/by-X), Activities calendar,
+Administration depth, Apollo/LeadMesh imports, ERP integrations, portals.
+
+## Core data model (start here)
+`organizations`, `users`(org_id, role), `campaigns`, `leads`(org_id, status, source, score, owner),
+`accounts`(org_id), `contacts`(org_id, account_id), `opportunities`(org_id, account_id, stage, value,
+probability, expected_close, owner), `activities`(org_id, type, due, related_to), `quotes`(org_id,
+account_id, opportunity_id, status) + `quote_lines`. Every table has `org_id` + timestamps + audit.
+
+## Tracking setup (so Cyclops OS can watch this repo)
+Create at repo root: `CLAUDE.md` (rules: no invented numbers; human approval before commit/push/deploy/
+send; analyze-before-code). And a `project-follow/` folder with:
+- `current-session.md` — short compass for any new AI session.
+- `backlog.md` — Now / Next / Later.
+- `NN-status-YYYY-MM-DD.md` — session status snapshots.
+Push to GitHub as a **private** repo `opencrm-ai`. (Cyclops will register it for daily sync.)
+
+## Your first reply must contain
+1. detected/chosen stack, 2. folder structure, 3. exact MVP-0 file list, 4. data model (tables + key
+columns + relations), 5. API/route design, 6. screen list for MVP-0, 7. AI-insight approach (grounded,
+no invented numbers), 8. multi-tenant/RBAC approach, 9. phase plan, 10. risks/open questions,
+11. a request to confirm before coding.
+
+# END
