@@ -4,7 +4,8 @@
       "PowerShell(npm install next@14 eslint-config-next@14 2>&1)",
       "PowerShell(npm run build 2>&1)",
       "PowerShell(npm run db:migrate 2>&1)",
-      "PowerShell(npm run dev)"
+      "PowerShell(npm run dev)",
+      "PowerShell(git -C \"c:\\\\Users\\\\ozcir\\\\Desktop\\\\Open CRM Ai\" add \"src/app/\\(auth\\)/layout.tsx\")"
     ]
   }
 }

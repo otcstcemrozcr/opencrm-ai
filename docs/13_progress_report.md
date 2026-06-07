@@ -35,8 +35,24 @@ minimal Activities, local-first, stages, roles, English docs, Resend email).
       unauthenticated dashboard redirects to /sign-in (middleware gating works).
 - [ ] Commit + push Sprint 0 code (awaiting owner approval).
 
-### Next (Sprint 1)
-- [ ] Org invitations + password reset (Resend); Accounts/Contacts/Leads + convert flow.
+### Done — Sprint 1 core (code, 2026-06-07)
+- ✅ Schema extended: accounts, contacts, leads, opportunities (+ enums) + migration `0001`.
+- ✅ Org-scoped access guards: `requireUser` / `requireRole` / `canWrite` (viewer = read-only).
+- ✅ Shared CRM UI: Table, Badge, Select, Textarea, PageHeader, EmptyState, status badges.
+- ✅ Accounts: list / new / edit / detail (split-screen with related contacts + opps).
+- ✅ Contacts: list / new / edit / detail (account dropdown, prefill via ?accountId).
+- ✅ Leads: list / new / edit / detail (status + score).
+- ✅ Lead convert: transactional → Account + Contact + Opportunity, back-refs on lead.
+- ✅ Opportunities list + basic detail; Quotes placeholder (nav complete, no 404s).
+- ✅ Verified: build passes (23 routes); all pages auth-gated 200; convert transaction +
+      cross-tenant isolation tested green against Neon.
+
+### Pending in Sprint 1 (deferred to end)
+- [ ] Org invitations + password reset (Resend).
+
+### Next
+- [ ] Commit + push Sprint 1 (awaiting owner approval).
+- [ ] Sprint 2: Opportunities full edit + Kanban (drag stage) + minimal Activities.
 
 ### Blockers / Open Items
 - None blocking. Awaiting owner "start" to begin Sprint 0.

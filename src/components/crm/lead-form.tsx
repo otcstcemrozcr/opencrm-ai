@@ -1,0 +1,125 @@
+"use client";
+
+import { useFormState, useFormStatus } from "react-dom";
+import Link from "next/link";
+import { saveLead, type FormState } from "@/server/actions/leads";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+
+const STATUSES = ["new", "working", "qualified", "unqualified", "converted"] as const;
+
+type Props = {
+  lead?: {
+    id: string;
+    company: string;
+    contactName: string | null;
+    email: string | null;
+    phone: string | null;
+    linkedin: string | null;
+    source: string | null;
+    industry: string | null;
+    status: (typeof STATUSES)[number];
+    score: number;
+  };
+};
+
+function SubmitButton({ isEdit }: { isEdit: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" disabled={pending}>
+      {pending ? "Saving…" : isEdit ? "Save changes" : "Create lead"}
+    </Button>
+  );
+}
+
+export function LeadForm({ lead }: Props) {
+  const [state, formAction] = useFormState<FormState, FormData>(saveLead, {});
+  const isEdit = Boolean(lead);
+
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <form action={formAction} className="space-y-4">
+          {lead && <input type="hidden" name="id" value={lead.id} />}
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="company">Company *</Label>
+              <Input id="company" name="company" defaultValue={lead?.company ?? ""} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contactName">Contact name</Label>
+              <Input id="contactName" name="contactName" defaultValue={lead?.contactName ?? ""} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" name="email" type="email" defaultValue={lead?.email ?? ""} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone</Label>
+              <Input id="phone" name="phone" defaultValue={lead?.phone ?? ""} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="source">Source</Label>
+              <Input id="source" name="source" defaultValue={lead?.source ?? ""} placeholder="e.g. Apollo, Event, Referral" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="industry">Industry</Label>
+              <Input id="industry" name="industry" defaultValue={lead?.industry ?? ""} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="linkedin">LinkedIn</Label>
+            <Input id="linkedin" name="linkedin" defaultValue={lead?.linkedin ?? ""} placeholder="https://linkedin.com/in/…" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select id="status" name="status" defaultValue={lead?.status ?? "new"}>
+                {STATUSES.map((s) => (
+                  <option key={s} value={s} className="capitalize">
+                    {s}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="score">Lead score (0–100)</Label>
+              <Input
+                id="score"
+                name="score"
+                type="number"
+                min={0}
+                max={100}
+                defaultValue={lead?.score ?? 0}
+              />
+            </div>
+          </div>
+
+          {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+
+          <div className="flex items-center gap-2">
+            <SubmitButton isEdit={isEdit} />
+            <Link
+              href={lead ? `/leads/${lead.id}` : "/leads"}
+              className={buttonVariants({ variant: "outline" })}
+            >
+              Cancel
+            </Link>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
