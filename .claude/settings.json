@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npm install next@14 eslint-config-next@14 2>&1)",
+      "PowerShell(npm run build 2>&1)",
+      "PowerShell(npm run db:migrate 2>&1)",
+      "PowerShell(npm run dev)"
+    ]
+  }
+}
