@@ -89,6 +89,21 @@ export const opportunityStageEnum = pgEnum("opportunity_stage", [
   "lost",
 ]);
 
+export const activityTypeEnum = pgEnum("activity_type", [
+  "call",
+  "meeting",
+  "demo",
+  "site_visit",
+  "follow_up",
+]);
+
+export const activityRelatedTypeEnum = pgEnum("activity_related_type", [
+  "lead",
+  "opportunity",
+  "account",
+  "contact",
+]);
+
 export const accounts = pgTable(
   "accounts",
   {
@@ -194,6 +209,30 @@ export const opportunities = pgTable(
   })
 );
 
+export const activities = pgTable(
+  "activities",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    type: activityTypeEnum("type").notNull().default("follow_up"),
+    subject: text("subject").notNull(),
+    notes: text("notes"),
+    dueAt: timestamp("due_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    relatedType: activityRelatedTypeEnum("related_type").notNull(),
+    relatedId: uuid("related_id").notNull(),
+    ownerId: uuid("owner_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    orgIdx: index("activities_org_idx").on(t.orgId),
+    relatedIdx: index("activities_related_idx").on(t.orgId, t.relatedType, t.relatedId),
+  })
+);
+
 export type Organization = typeof organizations.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
@@ -204,3 +243,6 @@ export type Lead = typeof leads.$inferSelect;
 export type Opportunity = typeof opportunities.$inferSelect;
 export type LeadStatus = (typeof leadStatusEnum.enumValues)[number];
 export type OpportunityStage = (typeof opportunityStageEnum.enumValues)[number];
+export type Activity = typeof activities.$inferSelect;
+export type ActivityType = (typeof activityTypeEnum.enumValues)[number];
+export type ActivityRelatedType = (typeof activityRelatedTypeEnum.enumValues)[number];

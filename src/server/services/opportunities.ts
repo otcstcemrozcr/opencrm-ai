@@ -76,3 +76,50 @@ export async function createOpportunity(orgId: string, input: OpportunityInput) 
     .returning();
   return row;
 }
+
+export async function updateOpportunity(
+  orgId: string,
+  id: string,
+  input: OpportunityInput & { competitor?: string | null; notes?: string | null }
+) {
+  const closing = input.stage === "won" || input.stage === "lost";
+  const [row] = await db
+    .update(opportunities)
+    .set({
+      name: input.name,
+      accountId: input.accountId || null,
+      stage: input.stage ?? "new",
+      value: String(input.value ?? "0"),
+      probability: input.probability ?? 0,
+      expectedClose: input.expectedClose || null,
+      competitor: input.competitor || null,
+      notes: input.notes || null,
+      closedAt: closing ? new Date() : null,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(opportunities.orgId, orgId), eq(opportunities.id, id)))
+    .returning();
+  return row ?? null;
+}
+
+export async function updateOpportunityStage(
+  orgId: string,
+  id: string,
+  stage: OpportunityStage
+) {
+  const closing = stage === "won" || stage === "lost";
+  const [row] = await db
+    .update(opportunities)
+    .set({
+      stage,
+      closedAt: closing ? new Date() : null,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(opportunities.orgId, orgId), eq(opportunities.id, id)))
+    .returning();
+  return row ?? null;
+}
+
+export async function deleteOpportunity(orgId: string, id: string) {
+  await db.delete(opportunities).where(and(eq(opportunities.orgId, orgId), eq(opportunities.id, id)));
+}

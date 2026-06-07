@@ -15,6 +15,13 @@
       "when": 1780855370219,
       "tag": "0001_nappy_king_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780868553513,
+      "tag": "0002_cheerful_thunderbolts",
+      "breakpoints": true
     }
   ]
 }

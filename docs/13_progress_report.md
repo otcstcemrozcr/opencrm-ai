@@ -50,9 +50,24 @@ minimal Activities, local-first, stages, roles, English docs, Resend email).
 ### Pending in Sprint 1 (deferred to end)
 - [ ] Org invitations + password reset (Resend).
 
+### Done — Sprint 1 (pushed: commit 56b1dcd)
+
+### Done — Sprint 2 (code, 2026-06-08)
+- ✅ Schema: activities table (+ type/related enums), migration `0002`.
+- ✅ Opportunities full CRUD: service update/delete/updateStage + actions + new/edit form + detail.
+- ✅ Kanban board (HTML5 drag-and-drop): drag cards between stages → optimistic + persisted via
+      server action; per-column count + value totals; List/Kanban view toggle.
+- ✅ Minimal Activities: service + actions + add/list panel on opportunity detail; creating an
+      activity bumps `last_activity_at` (feeds Sprint 3 AI insight).
+- ✅ Verified: build green (25 routes); DB-level tests pass — stage→won sets closed_at,
+      activity sets last_activity_at, convert + tenant isolation still green.
+- ⚠ Local dev server is flaky on this Windows env (exits 255 across turns); not a code issue
+      (build + logic tests pass). Restart with `npm run dev` to view in browser.
+
 ### Next
-- [ ] Commit + push Sprint 1 (awaiting owner approval).
-- [ ] Sprint 2: Opportunities full edit + Kanban (drag stage) + minimal Activities.
+- [ ] Commit + push Sprint 2 (awaiting owner approval).
+- [ ] Sprint 1 leftover: org invitations + password reset (Resend).
+- [ ] Sprint 3: Quotes (+PDF), Dashboard KPIs, AI Insight v1, audit logs.
 
 ### Blockers / Open Items
 - None blocking. Awaiting owner "start" to begin Sprint 0.

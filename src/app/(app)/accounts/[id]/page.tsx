@@ -116,8 +116,16 @@ export default async function AccountDetailPage({
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base">Opportunities</CardTitle>
+              {writable && (
+                <Link
+                  href={`/opportunities/new?accountId=${account.id}`}
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                >
+                  <Plus className="h-4 w-4" /> Add
+                </Link>
+              )}
             </CardHeader>
             <CardContent>
               {opps.length === 0 ? (
@@ -126,7 +134,9 @@ export default async function AccountDetailPage({
                 <ul className="divide-y">
                   {opps.map((o) => (
                     <li key={o.id} className="flex items-center justify-between py-2">
-                      <span className="text-sm font-medium">{o.name}</span>
+                      <Link href={`/opportunities/${o.id}`} className="text-sm font-medium text-accent hover:underline">
+                        {o.name}
+                      </Link>
                       <span className="flex items-center gap-3 text-sm text-muted-foreground">
                         <Badge variant="accent">{o.stage}</Badge>
                         {formatCurrency(Number(o.value))}
