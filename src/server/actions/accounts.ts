@@ -9,6 +9,7 @@ import {
   updateAccount,
   deleteAccount,
 } from "@/server/services/accounts";
+import { writeAudit } from "@/server/services/audit";
 
 export type FormState = { error?: string };
 
@@ -53,6 +54,7 @@ export async function removeAccount(formData: FormData): Promise<void> {
   if (!canWrite(user.role)) throw new Error("FORBIDDEN");
   const id = formData.get("id") as string;
   await deleteAccount(user.orgId, id);
+  await writeAudit({ orgId: user.orgId, actorId: user.id, action: "delete", entityType: "account", entityId: id });
   revalidatePath("/accounts");
   redirect("/accounts");
 }

@@ -10,6 +10,7 @@ import {
   deleteLead,
   convertLead,
 } from "@/server/services/leads";
+import { writeAudit } from "@/server/services/audit";
 
 export type FormState = { error?: string };
 
@@ -78,6 +79,7 @@ export async function removeLead(formData: FormData): Promise<void> {
   if (!canWrite(user.role)) throw new Error("FORBIDDEN");
   const id = formData.get("id") as string;
   await deleteLead(user.orgId, id);
+  await writeAudit({ orgId: user.orgId, actorId: user.id, action: "delete", entityType: "lead", entityId: id });
   revalidatePath("/leads");
   redirect("/leads");
 }
@@ -91,6 +93,18 @@ export async function convertLeadAction(formData: FormData): Promise<void> {
     // Re-render the lead page; the lead status row will reflect reality.
     redirect(`/leads/${id}?error=${encodeURIComponent(result.error)}`);
   }
+  await writeAudit({
+    orgId: user.orgId,
+    actorId: user.id,
+    action: "convert",
+    entityType: "lead",
+    entityId: id,
+    detail: {
+      accountId: result.accountId,
+      contactId: result.contactId,
+      opportunityId: result.opportunityId,
+    },
+  });
   revalidatePath("/leads");
   revalidatePath("/accounts");
   redirect(`/opportunities/${result.opportunityId}`);

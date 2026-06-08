@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import type { LeadStatus, OpportunityStage } from "@/server/db/schema";
+import type { LeadStatus, OpportunityStage, QuoteStatus } from "@/server/db/schema";
 
 const LEAD_VARIANT: Record<LeadStatus, "default" | "accent" | "success" | "warning" | "destructive"> = {
   new: "default",
@@ -32,6 +32,22 @@ export function StageBadge({ stage }: { stage: OpportunityStage }) {
   return (
     <Badge variant={STAGE_VARIANT[stage]} className="capitalize">
       {stage}
+    </Badge>
+  );
+}
+
+const QUOTE_VARIANT: Record<QuoteStatus, "default" | "accent" | "success" | "warning" | "destructive"> = {
+  draft: "default",
+  sent: "accent",
+  accepted: "success",
+  rejected: "destructive",
+  expired: "warning",
+};
+
+export function QuoteStatusBadge({ status }: { status: QuoteStatus }) {
+  return (
+    <Badge variant={QUOTE_VARIANT[status]} className="capitalize">
+      {status}
     </Badge>
   );
 }

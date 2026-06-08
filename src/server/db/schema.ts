@@ -233,6 +233,90 @@ export const activities = pgTable(
   })
 );
 
+export const auditLogs = pgTable(
+  "audit_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+    action: text("action").notNull(), // create | update | delete | convert | status
+    entityType: text("entity_type").notNull(),
+    entityId: uuid("entity_id"),
+    diff: text("diff"), // JSON string of relevant detail
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    orgIdx: index("audit_logs_org_idx").on(t.orgId),
+  })
+);
+
+export const quoteStatusEnum = pgEnum("quote_status", [
+  "draft",
+  "sent",
+  "accepted",
+  "rejected",
+  "expired",
+]);
+
+export const quoteLineKindEnum = pgEnum("quote_line_kind", ["product", "service"]);
+
+export const quotes = pgTable(
+  "quotes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    accountId: uuid("account_id").references(() => accounts.id, { onDelete: "set null" }),
+    opportunityId: uuid("opportunity_id").references(() => opportunities.id, {
+      onDelete: "set null",
+    }),
+    quoteNo: text("quote_no").notNull(),
+    version: integer("version").notNull().default(1),
+    status: quoteStatusEnum("status").notNull().default("draft"),
+    currency: text("currency").notNull().default("USD"),
+    subtotal: numeric("subtotal", { precision: 14, scale: 2 }).notNull().default("0"),
+    discount: numeric("discount", { precision: 14, scale: 2 }).notNull().default("0"),
+    tax: numeric("tax", { precision: 14, scale: 2 }).notNull().default("0"),
+    total: numeric("total", { precision: 14, scale: 2 }).notNull().default("0"),
+    notes: text("notes"),
+    validUntil: date("valid_until"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    orgIdx: index("quotes_org_idx").on(t.orgId),
+    statusIdx: index("quotes_org_status_idx").on(t.orgId, t.status),
+  })
+);
+
+export const quoteLines = pgTable(
+  "quote_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    quoteId: uuid("quote_id")
+      .notNull()
+      .references(() => quotes.id, { onDelete: "cascade" }),
+    kind: quoteLineKindEnum("kind").notNull().default("product"),
+    name: text("name").notNull(),
+    description: text("description"),
+    qty: numeric("qty", { precision: 12, scale: 2 }).notNull().default("1"),
+    unitPrice: numeric("unit_price", { precision: 14, scale: 2 }).notNull().default("0"),
+    discount: numeric("discount", { precision: 14, scale: 2 }).notNull().default("0"),
+    taxRate: numeric("tax_rate", { precision: 5, scale: 2 }).notNull().default("0"),
+    lineTotal: numeric("line_total", { precision: 14, scale: 2 }).notNull().default("0"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => ({
+    quoteIdx: index("quote_lines_quote_idx").on(t.quoteId),
+  })
+);
+
 export type Organization = typeof organizations.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
@@ -246,3 +330,8 @@ export type OpportunityStage = (typeof opportunityStageEnum.enumValues)[number];
 export type Activity = typeof activities.$inferSelect;
 export type ActivityType = (typeof activityTypeEnum.enumValues)[number];
 export type ActivityRelatedType = (typeof activityRelatedTypeEnum.enumValues)[number];
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type Quote = typeof quotes.$inferSelect;
+export type QuoteLine = typeof quoteLines.$inferSelect;
+export type QuoteStatus = (typeof quoteStatusEnum.enumValues)[number];
+export type QuoteLineKind = (typeof quoteLineKindEnum.enumValues)[number];

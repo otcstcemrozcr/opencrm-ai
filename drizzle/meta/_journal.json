@@ -22,6 +22,20 @@
       "when": 1780868553513,
       "tag": "0002_cheerful_thunderbolts",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1780951460628,
+      "tag": "0003_public_skaar",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1780952136593,
+      "tag": "0004_white_adam_destine",
+      "breakpoints": true
     }
   ]
 }

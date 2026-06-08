@@ -10,6 +10,7 @@ import {
   updateOpportunityStage,
   deleteOpportunity,
 } from "@/server/services/opportunities";
+import { writeAudit } from "@/server/services/audit";
 import type { OpportunityStage } from "@/server/db/schema";
 
 export type FormState = { error?: string };
@@ -87,6 +88,7 @@ export async function removeOpportunity(formData: FormData): Promise<void> {
   if (!canWrite(user.role)) throw new Error("FORBIDDEN");
   const id = formData.get("id") as string;
   await deleteOpportunity(user.orgId, id);
+  await writeAudit({ orgId: user.orgId, actorId: user.id, action: "delete", entityType: "opportunity", entityId: id });
   revalidatePath("/opportunities");
   redirect("/opportunities");
 }

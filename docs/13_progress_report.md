@@ -64,9 +64,22 @@ minimal Activities, local-first, stages, roles, English docs, Resend email).
 - ⚠ Local dev server is flaky on this Windows env (exits 255 across turns); not a code issue
       (build + logic tests pass). Restart with `npm run dev` to view in browser.
 
-### Next
-- [ ] Commit + push Sprint 2 (awaiting owner approval).
-- [ ] Sprint 1 leftover: org invitations + password reset (Resend).
+### Done — Sprint 3 (quotes + dashboard + AI, code 2026-06-08)
+- ✅ Dashboard KPIs (deterministic, org-scoped): open leads/opps, pipeline value, won/lost revenue,
+      hit ratio, win rate, forecast (weighted), overdue opps/activities + overdue lists.
+- ✅ Quotes: schema (quotes + quote_lines, migration `0003`), CRUD, dynamic line items with live
+      totals (subtotal/discount/tax), statuses, PDF export via React-PDF (`/quotes/:id/pdf`).
+- ✅ AI Insight v1 on opportunities: deterministic risk (days since activity, overdue) + recommended
+      action; provider-agnostic (Anthropic) phrases it when ANTHROPIC_API_KEY is set, else
+      deterministic prose. No invented numbers (docs/07).
+- ✅ Audit logging (audit_logs, migration `0004`) on deletes, lead convert, quote status changes.
+- ✅ Verified: build green (30 routes); all pages auth-gated 200 against Neon.
+
+### MVP-0 status: COMPLETE 🎉 (Sprints 0–3 shipped)
+Remaining optional / polish:
+- [ ] Sprint 1 leftover: org invitations + password reset (needs RESEND_API_KEY).
+- [ ] AI prose live phrasing (needs ANTHROPIC_API_KEY; deterministic fallback works now).
+- [ ] Deploy to Vercel; broaden audit to create/update; RLS hardening.
 - [ ] Sprint 3: Quotes (+PDF), Dashboard KPIs, AI Insight v1, audit logs.
 
 ### Blockers / Open Items

@@ -1,0 +1,146 @@
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+} from "@react-pdf/renderer";
+
+type Line = {
+  name: string;
+  description: string | null;
+  kind: string;
+  qty: string;
+  unitPrice: string;
+  discount: string;
+  taxRate: string;
+  lineTotal: string;
+};
+
+export type QuotePdfData = {
+  orgName: string;
+  quoteNo: string;
+  status: string;
+  currency: string;
+  accountName: string | null;
+  validUntil: string | null;
+  notes: string | null;
+  subtotal: string;
+  discount: string;
+  tax: string;
+  total: string;
+  lines: Line[];
+};
+
+const NAVY = "#0F172A";
+const ACCENT = "#2563EB";
+const MUTED = "#64748B";
+const BORDER = "#E2E8F0";
+
+const s = StyleSheet.create({
+  page: { padding: 40, fontSize: 10, color: NAVY, fontFamily: "Helvetica" },
+  header: { flexDirection: "row", justifyContent: "space-between", marginBottom: 24 },
+  brand: { fontSize: 16, fontWeight: "bold", color: NAVY },
+  brandAccent: { color: ACCENT },
+  quoteNo: { fontSize: 14, fontWeight: "bold" },
+  muted: { color: MUTED },
+  metaRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 16 },
+  metaCol: { flexDirection: "column", gap: 2 },
+  table: { marginTop: 8, borderTop: `1pt solid ${BORDER}` },
+  tr: { flexDirection: "row", borderBottom: `1pt solid ${BORDER}`, paddingVertical: 6 },
+  thRow: { flexDirection: "row", borderBottom: `1pt solid ${BORDER}`, paddingVertical: 6, backgroundColor: "#F8FAFC" },
+  th: { color: MUTED, fontSize: 8, textTransform: "uppercase" },
+  cName: { width: "40%", paddingRight: 6 },
+  cNum: { width: "15%", textAlign: "right" },
+  totals: { marginTop: 12, alignSelf: "flex-end", width: 220 },
+  totalRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 2 },
+  grand: { flexDirection: "row", justifyContent: "space-between", paddingTop: 4, marginTop: 4, borderTop: `1pt solid ${BORDER}`, fontWeight: "bold", fontSize: 12 },
+  notes: { marginTop: 24, color: MUTED },
+  footer: { position: "absolute", bottom: 30, left: 40, right: 40, textAlign: "center", color: MUTED, fontSize: 8 },
+});
+
+function money(v: string, currency: string) {
+  const n = Number(v);
+  return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(n);
+}
+
+export function QuoteDocument({ data }: { data: QuotePdfData }) {
+  const cur = data.currency;
+  return (
+    <Document title={data.quoteNo}>
+      <Page size="A4" style={s.page}>
+        <View style={s.header}>
+          <Text style={s.brand}>
+            OpenCRM <Text style={s.brandAccent}>AI</Text>
+          </Text>
+          <View style={{ alignItems: "flex-end" }}>
+            <Text style={s.quoteNo}>{data.quoteNo}</Text>
+            <Text style={s.muted}>{data.status.toUpperCase()}</Text>
+          </View>
+        </View>
+
+        <View style={s.metaRow}>
+          <View style={s.metaCol}>
+            <Text style={s.muted}>From</Text>
+            <Text>{data.orgName}</Text>
+          </View>
+          <View style={[s.metaCol, { alignItems: "flex-end" }]}>
+            <Text style={s.muted}>Billed to</Text>
+            <Text>{data.accountName ?? "—"}</Text>
+            {data.validUntil ? <Text style={s.muted}>Valid until {data.validUntil}</Text> : null}
+          </View>
+        </View>
+
+        <View style={s.table}>
+          <View style={s.thRow}>
+            <Text style={[s.th, s.cName]}>Item</Text>
+            <Text style={[s.th, s.cNum]}>Qty</Text>
+            <Text style={[s.th, s.cNum]}>Unit</Text>
+            <Text style={[s.th, s.cNum]}>Tax</Text>
+            <Text style={[s.th, s.cNum]}>Total</Text>
+          </View>
+          {data.lines.map((l, i) => (
+            <View style={s.tr} key={i}>
+              <View style={s.cName}>
+                <Text>{l.name}</Text>
+                {l.description ? <Text style={s.muted}>{l.description}</Text> : null}
+              </View>
+              <Text style={s.cNum}>{Number(l.qty)}</Text>
+              <Text style={s.cNum}>{money(l.unitPrice, cur)}</Text>
+              <Text style={s.cNum}>{Number(l.taxRate)}%</Text>
+              <Text style={s.cNum}>{money(l.lineTotal, cur)}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={s.totals}>
+          <View style={s.totalRow}>
+            <Text style={s.muted}>Subtotal</Text>
+            <Text>{money(data.subtotal, cur)}</Text>
+          </View>
+          <View style={s.totalRow}>
+            <Text style={s.muted}>Discount</Text>
+            <Text>- {money(data.discount, cur)}</Text>
+          </View>
+          <View style={s.totalRow}>
+            <Text style={s.muted}>Tax</Text>
+            <Text>{money(data.tax, cur)}</Text>
+          </View>
+          <View style={s.grand}>
+            <Text>Total</Text>
+            <Text>{money(data.total, cur)}</Text>
+          </View>
+        </View>
+
+        {data.notes ? (
+          <View style={s.notes}>
+            <Text>Notes</Text>
+            <Text>{data.notes}</Text>
+          </View>
+        ) : null}
+
+        <Text style={s.footer}>Generated by OpenCRM AI</Text>
+      </Page>
+    </Document>
+  );
+}

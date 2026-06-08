@@ -9,6 +9,7 @@ import {
   updateContact,
   deleteContact,
 } from "@/server/services/contacts";
+import { writeAudit } from "@/server/services/audit";
 
 export type FormState = { error?: string };
 
@@ -68,6 +69,7 @@ export async function removeContact(formData: FormData): Promise<void> {
   if (!canWrite(user.role)) throw new Error("FORBIDDEN");
   const id = formData.get("id") as string;
   await deleteContact(user.orgId, id);
+  await writeAudit({ orgId: user.orgId, actorId: user.id, action: "delete", entityType: "contact", entityId: id });
   revalidatePath("/contacts");
   redirect("/contacts");
 }

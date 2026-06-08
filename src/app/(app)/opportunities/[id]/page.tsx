@@ -4,9 +4,11 @@ import { Pencil, Trash2 } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { getOpportunity } from "@/server/services/opportunities";
 import { listActivities } from "@/server/services/activities";
+import { getOpportunityInsight } from "@/server/ai/insight";
 import { removeOpportunity } from "@/server/actions/opportunities";
 import { PageHeader } from "@/components/crm/page-header";
 import { StageBadge } from "@/components/crm/status-badges";
+import { InsightCallout } from "@/components/crm/insight-callout";
 import { ActivityPanel } from "@/components/crm/activity-panel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +23,10 @@ export default async function OpportunityDetailPage({
   const opp = await getOpportunity(user.orgId, params.id);
   if (!opp) notFound();
 
-  const activities = await listActivities(user.orgId, "opportunity", opp.id);
+  const [activities, insight] = await Promise.all([
+    listActivities(user.orgId, "opportunity", opp.id),
+    getOpportunityInsight(user.orgId, opp.id),
+  ]);
   const writable = canWrite(user.role);
 
   return (
@@ -45,6 +50,8 @@ export default async function OpportunityDetailPage({
           ) : null
         }
       />
+
+      {insight && <InsightCallout insight={insight} />}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
