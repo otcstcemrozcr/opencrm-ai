@@ -14,3 +14,4 @@
 | D8 | 2026-06-07 | Roles: Admin/Manager/Rep/Viewer | Matches vision RBAC; owner-confirmed | Locked ✓ |
 | D9 | 2026-06-07 | docs/ written in English (project canonical language) | Primary language English; i18n-ready | Locked |
 | D10 | 2026-06-07 | Email via Resend (invitations + password reset) | Required by own-auth flows | Locked |
+| D11 | 2026-06-08 | Deployed MVP-0 to Vercel (project opencrm-ai), GitHub-connected for auto-deploy | Live preview/prod; same Neon DB | Locked ✓ |

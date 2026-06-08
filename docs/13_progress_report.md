@@ -75,11 +75,18 @@ minimal Activities, local-first, stages, roles, English docs, Resend email).
 - ✅ Audit logging (audit_logs, migration `0004`) on deletes, lead convert, quote status changes.
 - ✅ Verified: build green (30 routes); all pages auth-gated 200 against Neon.
 
-### MVP-0 status: COMPLETE 🎉 (Sprints 0–3 shipped)
+### Deployed to Vercel — 2026-06-08
+- ✅ Live: https://opencrm-ai.vercel.app (project `otcstcemrozcrs-projects/opencrm-ai`, GitHub-connected).
+- ✅ Production env: `DATABASE_URL` (same Neon) + `JWT_SECRET` (prod-only, distinct from local).
+- ✅ Verified live: sign-in 200, login 200, dashboard KPIs render.
+- ⚠ Gotcha fixed: PowerShell `|` piping prepended a UTF-8 BOM to env values, breaking the DB URL
+      parse. Re-add env values BOM-free (cmd `type` from a no-BOM file).
+
+### MVP-0 status: COMPLETE & DEPLOYED 🎉 (Sprints 0–3 live)
 Remaining optional / polish:
 - [ ] Sprint 1 leftover: org invitations + password reset (needs RESEND_API_KEY).
 - [ ] AI prose live phrasing (needs ANTHROPIC_API_KEY; deterministic fallback works now).
-- [ ] Deploy to Vercel; broaden audit to create/update; RLS hardening.
+- [ ] Broaden audit to create/update; RLS hardening.
 - [ ] Sprint 3: Quotes (+PDF), Dashboard KPIs, AI Insight v1, audit logs.
 
 ### Blockers / Open Items
