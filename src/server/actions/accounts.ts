@@ -15,8 +15,16 @@ export type FormState = { error?: string };
 
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(200),
+  type: z.enum(["prospect", "customer", "partner", "other"]),
   industry: z.string().max(120).optional(),
   website: z.string().max(200).optional(),
+  phone: z.string().max(60).optional(),
+  employees: z.coerce.number().int().min(0).optional(),
+  annualRevenue: z.coerce.number().min(0).optional(),
+  addressLine: z.string().max(200).optional(),
+  city: z.string().max(120).optional(),
+  country: z.string().max(120).optional(),
+  description: z.string().max(2000).optional(),
 });
 
 export async function saveAccount(
@@ -29,19 +37,41 @@ export async function saveAccount(
   const id = (formData.get("id") as string) || null;
   const parsed = schema.safeParse({
     name: formData.get("name"),
+    type: formData.get("type") || "prospect",
     industry: formData.get("industry") || undefined,
     website: formData.get("website") || undefined,
+    phone: formData.get("phone") || undefined,
+    employees: formData.get("employees") || undefined,
+    annualRevenue: formData.get("annualRevenue") || undefined,
+    addressLine: formData.get("addressLine") || undefined,
+    city: formData.get("city") || undefined,
+    country: formData.get("country") || undefined,
+    description: formData.get("description") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
+  const input = {
+    name: parsed.data.name,
+    type: parsed.data.type,
+    industry: parsed.data.industry ?? null,
+    website: parsed.data.website ?? null,
+    phone: parsed.data.phone ?? null,
+    employees: parsed.data.employees ?? null,
+    annualRevenue: parsed.data.annualRevenue ?? null,
+    addressLine: parsed.data.addressLine ?? null,
+    city: parsed.data.city ?? null,
+    country: parsed.data.country ?? null,
+    description: parsed.data.description ?? null,
+  };
+
   let targetId = id;
   if (id) {
-    const updated = await updateAccount(user.orgId, id, parsed.data);
+    const updated = await updateAccount(user.orgId, id, input);
     if (!updated) return { error: "Account not found." };
   } else {
-    const created = await createAccount(user.orgId, parsed.data);
+    const created = await createAccount(user.orgId, input);
     targetId = created.id;
   }
 

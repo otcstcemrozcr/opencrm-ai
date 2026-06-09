@@ -20,8 +20,16 @@ export default async function EditAccountPage({
         account={{
           id: account.id,
           name: account.name,
+          type: account.type,
           industry: account.industry,
           website: account.website,
+          phone: account.phone,
+          employees: account.employees,
+          annualRevenue: account.annualRevenue,
+          addressLine: account.addressLine,
+          city: account.city,
+          country: account.country,
+          description: account.description,
         }}
       />
     </div>

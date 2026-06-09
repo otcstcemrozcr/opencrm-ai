@@ -64,6 +64,7 @@ export default async function AccountDetailPage({
             <CardTitle className="text-base">Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
+            <Field label="Type" value={<span className="capitalize">{account.type}</span>} />
             <Field label="Industry" value={account.industry} />
             <Field
               label="Website"
@@ -80,6 +81,29 @@ export default async function AccountDetailPage({
                 ) : null
               }
             />
+            <Field label="Phone" value={account.phone} />
+            <Field
+              label="Employees"
+              value={account.employees !== null ? account.employees.toLocaleString("en-US") : null}
+            />
+            <Field
+              label="Annual revenue"
+              value={account.annualRevenue ? formatCurrency(Number(account.annualRevenue)) : null}
+            />
+            <Field
+              label="Address"
+              value={
+                [account.addressLine, account.city, account.country]
+                  .filter(Boolean)
+                  .join(", ") || null
+              }
+            />
+            {account.description && (
+              <Field
+                label="Description"
+                value={<span className="whitespace-pre-wrap">{account.description}</span>}
+              />
+            )}
           </CardContent>
         </Card>
 

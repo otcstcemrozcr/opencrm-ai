@@ -104,6 +104,13 @@ export const activityRelatedTypeEnum = pgEnum("activity_related_type", [
   "contact",
 ]);
 
+export const accountTypeEnum = pgEnum("account_type", [
+  "prospect",
+  "customer",
+  "partner",
+  "other",
+]);
+
 export const accounts = pgTable(
   "accounts",
   {
@@ -112,8 +119,16 @@ export const accounts = pgTable(
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
+    type: accountTypeEnum("type").notNull().default("prospect"),
     industry: text("industry"),
     website: text("website"),
+    phone: text("phone"),
+    employees: integer("employees"),
+    annualRevenue: numeric("annual_revenue", { precision: 14, scale: 2 }),
+    addressLine: text("address_line"),
+    city: text("city"),
+    country: text("country"),
+    description: text("description"),
     ownerId: uuid("owner_id").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -322,6 +337,7 @@ export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type UserRole = (typeof userRoleEnum.enumValues)[number];
 export type Account = typeof accounts.$inferSelect;
+export type AccountType = (typeof accountTypeEnum.enumValues)[number];
 export type Contact = typeof contacts.$inferSelect;
 export type Lead = typeof leads.$inferSelect;
 export type Opportunity = typeof opportunities.$inferSelect;
