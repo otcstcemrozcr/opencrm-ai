@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { Plus, LayoutGrid, List } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
-import { listOpportunities } from "@/server/services/opportunities";
+import { listOpportunities, type OpportunityFilters } from "@/server/services/opportunities";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
+import { FilterBar } from "@/components/crm/filter-bar";
 import { StageBadge } from "@/components/crm/status-badges";
 import { KanbanBoard } from "@/components/crm/kanban-board";
+
+const OPP_STAGES = ["new", "qualified", "discovery", "meeting", "proposal", "negotiation", "won", "lost"];
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -21,10 +24,14 @@ import { cn, formatCurrency } from "@/lib/utils";
 export default async function OpportunitiesPage({
   searchParams,
 }: {
-  searchParams: { view?: string };
+  searchParams: { view?: string; q?: string; stage?: string; sort?: string };
 }) {
   const user = await requireUser();
-  const rows = await listOpportunities(user.orgId);
+  const rows = await listOpportunities(user.orgId, {
+    q: searchParams.q,
+    stage: searchParams.stage as OpportunityFilters["stage"],
+    sort: searchParams.sort,
+  });
   const writable = canWrite(user.role);
   const view = searchParams.view === "list" ? "list" : "kanban";
 
@@ -64,10 +71,22 @@ export default async function OpportunitiesPage({
         }
       />
 
+      <FilterBar
+        searchPlaceholder="Search opportunities…"
+        preserve={["view"]}
+        filters={[{ name: "stage", label: "Stage", options: OPP_STAGES.map((s) => ({ value: s, label: s })) }]}
+        sorts={[
+          { value: "value_desc", label: "Value (high→low)" },
+          { value: "value_asc", label: "Value (low→high)" },
+          { value: "close_asc", label: "Close date" },
+          { value: "name_asc", label: "Name (A→Z)" },
+        ]}
+      />
+
       {rows.length === 0 ? (
         <EmptyState
-          title="No opportunities yet"
-          description="Create one or convert a lead to build your pipeline."
+          title="No opportunities found"
+          description="No opportunities match your filters, or none exist yet."
           action={
             writable ? (
               <Link href="/opportunities/new" className={buttonVariants()}>

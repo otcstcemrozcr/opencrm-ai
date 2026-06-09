@@ -1,7 +1,13 @@
 import "server-only";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, asc, ilike, type SQL } from "drizzle-orm";
 import { db } from "@/server/db/client";
 import { opportunities, accounts, type OpportunityStage } from "@/server/db/schema";
+
+export type OpportunityFilters = {
+  q?: string;
+  stage?: OpportunityStage;
+  sort?: string;
+};
 
 export type OpportunityInput = {
   name: string;
@@ -13,7 +19,22 @@ export type OpportunityInput = {
   ownerId?: string | null;
 };
 
-export async function listOpportunities(orgId: string) {
+export async function listOpportunities(orgId: string, filters: OpportunityFilters = {}) {
+  const conds: SQL[] = [eq(opportunities.orgId, orgId)];
+  if (filters.stage) conds.push(eq(opportunities.stage, filters.stage));
+  if (filters.q) conds.push(ilike(opportunities.name, `%${filters.q}%`));
+
+  const orderBy =
+    filters.sort === "value_desc"
+      ? desc(opportunities.value)
+      : filters.sort === "value_asc"
+        ? asc(opportunities.value)
+        : filters.sort === "close_asc"
+          ? asc(opportunities.expectedClose)
+          : filters.sort === "name_asc"
+            ? asc(opportunities.name)
+            : desc(opportunities.createdAt);
+
   return db
     .select({
       id: opportunities.id,
@@ -27,8 +48,8 @@ export async function listOpportunities(orgId: string) {
     })
     .from(opportunities)
     .leftJoin(accounts, eq(opportunities.accountId, accounts.id))
-    .where(eq(opportunities.orgId, orgId))
-    .orderBy(desc(opportunities.createdAt));
+    .where(and(...conds))
+    .orderBy(orderBy);
 }
 
 export async function getOpportunity(orgId: string, id: string) {

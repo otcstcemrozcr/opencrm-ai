@@ -1,7 +1,9 @@
 import "server-only";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, asc, ilike, type SQL } from "drizzle-orm";
 import { db } from "@/server/db/client";
 import { accounts, type AccountType } from "@/server/db/schema";
+
+export type AccountFilters = { q?: string; type?: AccountType; sort?: string };
 
 export type AccountInput = {
   name: string;
@@ -50,12 +52,19 @@ function toValues(input: AccountInput) {
   };
 }
 
-export async function listAccounts(orgId: string) {
-  return db
-    .select()
-    .from(accounts)
-    .where(eq(accounts.orgId, orgId))
-    .orderBy(desc(accounts.createdAt));
+export async function listAccounts(orgId: string, filters: AccountFilters = {}) {
+  const conds: SQL[] = [eq(accounts.orgId, orgId)];
+  if (filters.type) conds.push(eq(accounts.type, filters.type));
+  if (filters.q) conds.push(ilike(accounts.name, `%${filters.q}%`));
+
+  const orderBy =
+    filters.sort === "name_asc"
+      ? asc(accounts.name)
+      : filters.sort === "created_asc"
+        ? asc(accounts.createdAt)
+        : desc(accounts.createdAt);
+
+  return db.select().from(accounts).where(and(...conds)).orderBy(orderBy);
 }
 
 export async function getAccount(orgId: string, id: string) {

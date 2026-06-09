@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
-import { listContacts } from "@/server/services/contacts";
+import { listContacts, type ContactFilters } from "@/server/services/contacts";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
+import { FilterBar } from "@/components/crm/filter-bar";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -15,9 +16,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default async function ContactsPage() {
+export default async function ContactsPage({
+  searchParams,
+}: {
+  searchParams: { q?: string; sort?: string };
+}) {
   const user = await requireUser();
-  const rows = await listContacts(user.orgId);
+  const rows = await listContacts(user.orgId, searchParams as ContactFilters);
   const writable = canWrite(user.role);
 
   return (
@@ -34,10 +39,15 @@ export default async function ContactsPage() {
         }
       />
 
+      <FilterBar
+        searchPlaceholder="Search name or email…"
+        sorts={[{ value: "name_asc", label: "Name (A→Z)" }]}
+      />
+
       {rows.length === 0 ? (
         <EmptyState
-          title="No contacts yet"
-          description="Add people you talk to at your accounts."
+          title="No contacts found"
+          description="No contacts match your filters, or none exist yet."
           action={
             writable ? (
               <Link href="/contacts/new" className={buttonVariants()}>

@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
-import { listLeads } from "@/server/services/leads";
+import { listLeads, type LeadFilters } from "@/server/services/leads";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
+import { FilterBar } from "@/components/crm/filter-bar";
 import { LeadStatusBadge } from "@/components/crm/status-badges";
+
+const LEAD_STATUSES = ["new", "working", "qualified", "unqualified", "converted"];
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -16,9 +19,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default async function LeadsPage() {
+export default async function LeadsPage({
+  searchParams,
+}: {
+  searchParams: { q?: string; status?: string; sort?: string };
+}) {
   const user = await requireUser();
-  const rows = await listLeads(user.orgId);
+  const rows = await listLeads(user.orgId, searchParams as LeadFilters);
   const writable = canWrite(user.role);
 
   return (
@@ -35,10 +42,21 @@ export default async function LeadsPage() {
         }
       />
 
+      <FilterBar
+        searchPlaceholder="Search company, contact, email…"
+        filters={[{ name: "status", label: "Status", options: LEAD_STATUSES.map((s) => ({ value: s, label: s })) }]}
+        sorts={[
+          { value: "score_desc", label: "Score (high→low)" },
+          { value: "score_asc", label: "Score (low→high)" },
+          { value: "company_asc", label: "Company (A→Z)" },
+          { value: "created_asc", label: "Oldest" },
+        ]}
+      />
+
       {rows.length === 0 ? (
         <EmptyState
-          title="No leads yet"
-          description="Add a lead to start the revenue loop."
+          title="No leads found"
+          description="No leads match your filters, or none exist yet."
           action={
             writable ? (
               <Link href="/leads/new" className={buttonVariants()}>

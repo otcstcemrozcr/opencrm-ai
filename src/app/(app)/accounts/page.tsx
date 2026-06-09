@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
-import { listAccounts } from "@/server/services/accounts";
+import { listAccounts, type AccountFilters } from "@/server/services/accounts";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
+import { FilterBar } from "@/components/crm/filter-bar";
+
+const ACCOUNT_TYPES = ["prospect", "customer", "partner", "other"];
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -15,9 +18,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default async function AccountsPage() {
+export default async function AccountsPage({
+  searchParams,
+}: {
+  searchParams: { q?: string; type?: string; sort?: string };
+}) {
   const user = await requireUser();
-  const rows = await listAccounts(user.orgId);
+  const rows = await listAccounts(user.orgId, searchParams as AccountFilters);
   const writable = canWrite(user.role);
 
   return (
@@ -34,10 +41,19 @@ export default async function AccountsPage() {
         }
       />
 
+      <FilterBar
+        searchPlaceholder="Search accounts…"
+        filters={[{ name: "type", label: "Type", options: ACCOUNT_TYPES.map((t) => ({ value: t, label: t })) }]}
+        sorts={[
+          { value: "name_asc", label: "Name (A→Z)" },
+          { value: "created_asc", label: "Oldest" },
+        ]}
+      />
+
       {rows.length === 0 ? (
         <EmptyState
-          title="No accounts yet"
-          description="Create your first account to start building your customer base."
+          title="No accounts found"
+          description="No accounts match your filters, or none exist yet."
           action={
             writable ? (
               <Link href="/accounts/new" className={buttonVariants()}>

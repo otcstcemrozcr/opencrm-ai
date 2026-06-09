@@ -1,7 +1,9 @@
 import "server-only";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, asc, ilike, or, type SQL } from "drizzle-orm";
 import { db } from "@/server/db/client";
 import { contacts, accounts } from "@/server/db/schema";
+
+export type ContactFilters = { q?: string; sort?: string };
 
 export type ContactInput = {
   name: string;
@@ -13,7 +15,15 @@ export type ContactInput = {
   ownerId?: string | null;
 };
 
-export async function listContacts(orgId: string) {
+export async function listContacts(orgId: string, filters: ContactFilters = {}) {
+  const conds: SQL[] = [eq(contacts.orgId, orgId)];
+  if (filters.q) {
+    const like = `%${filters.q}%`;
+    conds.push(or(ilike(contacts.name, like), ilike(contacts.email, like))!);
+  }
+  const orderBy =
+    filters.sort === "name_asc" ? asc(contacts.name) : desc(contacts.createdAt);
+
   return db
     .select({
       id: contacts.id,
@@ -26,8 +36,8 @@ export async function listContacts(orgId: string) {
     })
     .from(contacts)
     .leftJoin(accounts, eq(contacts.accountId, accounts.id))
-    .where(eq(contacts.orgId, orgId))
-    .orderBy(desc(contacts.createdAt));
+    .where(and(...conds))
+    .orderBy(orderBy);
 }
 
 export async function listContactsByAccount(orgId: string, accountId: string) {

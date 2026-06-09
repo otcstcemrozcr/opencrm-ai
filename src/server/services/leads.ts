@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, asc, ilike, or, type SQL } from "drizzle-orm";
 import { db } from "@/server/db/client";
 import {
   leads,
@@ -8,6 +8,12 @@ import {
   opportunities,
   type LeadStatus,
 } from "@/server/db/schema";
+
+export type LeadFilters = {
+  q?: string;
+  status?: LeadStatus;
+  sort?: string;
+};
 
 export type LeadInput = {
   company: string;
@@ -22,12 +28,27 @@ export type LeadInput = {
   ownerId?: string | null;
 };
 
-export async function listLeads(orgId: string) {
-  return db
-    .select()
-    .from(leads)
-    .where(eq(leads.orgId, orgId))
-    .orderBy(desc(leads.createdAt));
+export async function listLeads(orgId: string, filters: LeadFilters = {}) {
+  const conds: SQL[] = [eq(leads.orgId, orgId)];
+  if (filters.status) conds.push(eq(leads.status, filters.status));
+  if (filters.q) {
+    const like = `%${filters.q}%`;
+    conds.push(
+      or(ilike(leads.company, like), ilike(leads.contactName, like), ilike(leads.email, like))!
+    );
+  }
+  const orderBy =
+    filters.sort === "score_desc"
+      ? desc(leads.score)
+      : filters.sort === "score_asc"
+        ? asc(leads.score)
+        : filters.sort === "company_asc"
+          ? asc(leads.company)
+          : filters.sort === "created_asc"
+            ? asc(leads.createdAt)
+            : desc(leads.createdAt);
+
+  return db.select().from(leads).where(and(...conds)).orderBy(orderBy);
 }
 
 export async function getLead(orgId: string, id: string) {
