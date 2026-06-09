@@ -19,6 +19,15 @@
 - [ ] `[CRM]` Opportunities list + Kanban (drag stage) + detail
 - [ ] `[CRM]` Activities (minimal) + last_activity_at
 
+## Phase 2 roadmap (Sprints 4–10) — see docs/08_sprint_plan.md
+- [ ] S4 Activities/Tasks calendar · Notes · File attachments (R2) · Audit log viewer ⭐
+- [ ] S5 Saved views/filters · Bulk actions · CSV/Excel import · Dedupe & merge
+- [ ] S6 Field enrichment (account/contact/lead/opportunity)
+- [ ] S7 Products/Price book · Quotes 2.0 (versioning, Word, email send)
+- [ ] S8 Campaigns · Reporting suite + charts
+- [ ] S9 User mgmt + invitations/reset · Roles UI · Custom fields · Notifications
+- [ ] S10 Email integration · AI+ (scoring, drafts, summaries) · Comm Hub
+
 ## Later (Sprint 3 + post-MVP-0)
 - [ ] `[QUOTE]` Quotes + lines + discount/tax + versioning + PDF (React-PDF)
 - [ ] `[REPORT]` Dashboard KPI cards + overdue lists
