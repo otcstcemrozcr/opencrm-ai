@@ -15,6 +15,7 @@ export type FormState = { error?: string };
 
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(200),
+  name2: z.string().max(200).optional(),
   type: z.enum(["prospect", "customer", "partner", "other"]),
   industry: z.string().max(120).optional(),
   website: z.string().max(200).optional(),
@@ -22,7 +23,10 @@ const schema = z.object({
   employees: z.coerce.number().int().min(0).optional(),
   annualRevenue: z.coerce.number().min(0).optional(),
   addressLine: z.string().max(200).optional(),
+  street2: z.string().max(200).optional(),
+  postalCode: z.string().max(40).optional(),
   city: z.string().max(120).optional(),
+  region: z.string().max(120).optional(),
   country: z.string().max(120).optional(),
   description: z.string().max(2000).optional(),
 });
@@ -37,6 +41,7 @@ export async function saveAccount(
   const id = (formData.get("id") as string) || null;
   const parsed = schema.safeParse({
     name: formData.get("name"),
+    name2: formData.get("name2") || undefined,
     type: formData.get("type") || "prospect",
     industry: formData.get("industry") || undefined,
     website: formData.get("website") || undefined,
@@ -44,7 +49,10 @@ export async function saveAccount(
     employees: formData.get("employees") || undefined,
     annualRevenue: formData.get("annualRevenue") || undefined,
     addressLine: formData.get("addressLine") || undefined,
+    street2: formData.get("street2") || undefined,
+    postalCode: formData.get("postalCode") || undefined,
     city: formData.get("city") || undefined,
+    region: formData.get("region") || undefined,
     country: formData.get("country") || undefined,
     description: formData.get("description") || undefined,
   });
@@ -54,6 +62,7 @@ export async function saveAccount(
 
   const input = {
     name: parsed.data.name,
+    name2: parsed.data.name2 ?? null,
     type: parsed.data.type,
     industry: parsed.data.industry ?? null,
     website: parsed.data.website ?? null,
@@ -61,7 +70,10 @@ export async function saveAccount(
     employees: parsed.data.employees ?? null,
     annualRevenue: parsed.data.annualRevenue ?? null,
     addressLine: parsed.data.addressLine ?? null,
+    street2: parsed.data.street2 ?? null,
+    postalCode: parsed.data.postalCode ?? null,
     city: parsed.data.city ?? null,
+    region: parsed.data.region ?? null,
     country: parsed.data.country ?? null,
     description: parsed.data.description ?? null,
   };

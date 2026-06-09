@@ -5,6 +5,7 @@ import { accounts, type AccountType } from "@/server/db/schema";
 
 export type AccountInput = {
   name: string;
+  name2?: string | null;
   type?: AccountType;
   industry?: string | null;
   website?: string | null;
@@ -12,7 +13,10 @@ export type AccountInput = {
   employees?: number | null;
   annualRevenue?: number | null;
   addressLine?: string | null;
+  street2?: string | null;
+  postalCode?: string | null;
   city?: string | null;
+  region?: string | null;
   country?: string | null;
   description?: string | null;
   ownerId?: string | null;
@@ -21,6 +25,7 @@ export type AccountInput = {
 function toValues(input: AccountInput) {
   return {
     name: input.name,
+    name2: input.name2 || null,
     type: input.type ?? "prospect",
     industry: input.industry || null,
     website: input.website || null,
@@ -31,7 +36,10 @@ function toValues(input: AccountInput) {
         ? null
         : String(input.annualRevenue),
     addressLine: input.addressLine || null,
+    street2: input.street2 || null,
+    postalCode: input.postalCode || null,
     city: input.city || null,
+    region: input.region || null,
     country: input.country || null,
     description: input.description || null,
     ownerId: input.ownerId || null,

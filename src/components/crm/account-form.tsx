@@ -16,6 +16,7 @@ type Props = {
   account?: {
     id: string;
     name: string;
+    name2: string | null;
     type: (typeof TYPES)[number];
     industry: string | null;
     website: string | null;
@@ -23,7 +24,10 @@ type Props = {
     employees: number | null;
     annualRevenue: string | null;
     addressLine: string | null;
+    street2: string | null;
+    postalCode: string | null;
     city: string | null;
+    region: string | null;
     country: string | null;
     description: string | null;
   };
@@ -50,9 +54,16 @@ export function AccountForm({ account }: Props) {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name">Account name *</Label>
+              <Label htmlFor="name">Name 1 *</Label>
               <Input id="name" name="name" defaultValue={account?.name ?? ""} required />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="name2">Name 2</Label>
+              <Input id="name2" name="name2" defaultValue={account?.name2 ?? ""} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>
               <Select id="type" name="type" defaultValue={account?.type ?? "prospect"}>
@@ -61,20 +72,17 @@ export function AccountForm({ account }: Props) {
                 ))}
               </Select>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="industry">Industry</Label>
               <Input id="industry" name="industry" defaultValue={account?.industry ?? ""} placeholder="e.g. Manufacturing" />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="website">Website</Label>
               <Input id="website" name="website" defaultValue={account?.website ?? ""} placeholder="https://" />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
               <Input id="phone" name="phone" defaultValue={account?.phone ?? ""} />
@@ -83,24 +91,46 @@ export function AccountForm({ account }: Props) {
               <Label htmlFor="employees">Employees</Label>
               <Input id="employees" name="employees" type="number" min={0} defaultValue={account?.employees ?? ""} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="annualRevenue">Annual revenue</Label>
-              <Input id="annualRevenue" name="annualRevenue" type="number" min={0} step="0.01" defaultValue={account?.annualRevenue ?? ""} />
-            </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="space-y-2 sm:col-span-1">
-              <Label htmlFor="addressLine">Address</Label>
-              <Input id="addressLine" name="addressLine" defaultValue={account?.addressLine ?? ""} placeholder="Street" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="city">City</Label>
-              <Input id="city" name="city" defaultValue={account?.city ?? ""} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="country">Country</Label>
-              <Input id="country" name="country" defaultValue={account?.country ?? ""} />
+          <div className="space-y-2">
+            <Label htmlFor="annualRevenue">Annual revenue</Label>
+            <Input id="annualRevenue" name="annualRevenue" type="number" min={0} step="0.01" defaultValue={account?.annualRevenue ?? ""} />
+          </div>
+
+          <div className="border-t pt-4">
+            <div className="mb-2 text-sm font-medium text-muted-foreground">Address</div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="addressLine">Street 1</Label>
+                  <Input id="addressLine" name="addressLine" defaultValue={account?.addressLine ?? ""} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="street2">Street 2</Label>
+                  <Input id="street2" name="street2" defaultValue={account?.street2 ?? ""} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="postalCode">Postal code</Label>
+                  <Input id="postalCode" name="postalCode" defaultValue={account?.postalCode ?? ""} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="city">City</Label>
+                  <Input id="city" name="city" defaultValue={account?.city ?? ""} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="region">Region / State code</Label>
+                  <Input id="region" name="region" defaultValue={account?.region ?? ""} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="country">Country</Label>
+                  <Input id="country" name="country" defaultValue={account?.country ?? ""} />
+                </div>
+              </div>
             </div>
           </div>
 

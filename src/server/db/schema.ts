@@ -119,6 +119,7 @@ export const accounts = pgTable(
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
+    name2: text("name2"),
     type: accountTypeEnum("type").notNull().default("prospect"),
     industry: text("industry"),
     website: text("website"),
@@ -126,7 +127,10 @@ export const accounts = pgTable(
     employees: integer("employees"),
     annualRevenue: numeric("annual_revenue", { precision: 14, scale: 2 }),
     addressLine: text("address_line"),
+    street2: text("street2"),
+    postalCode: text("postal_code"),
     city: text("city"),
+    region: text("region"),
     country: text("country"),
     description: text("description"),
     ownerId: uuid("owner_id").references(() => users.id, { onDelete: "set null" }),

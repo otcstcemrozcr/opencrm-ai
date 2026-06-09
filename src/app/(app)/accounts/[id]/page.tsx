@@ -64,6 +64,7 @@ export default async function AccountDetailPage({
             <CardTitle className="text-base">Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
+            <Field label="Name 2" value={account.name2} />
             <Field label="Type" value={<span className="capitalize">{account.type}</span>} />
             <Field label="Industry" value={account.industry} />
             <Field
@@ -93,7 +94,13 @@ export default async function AccountDetailPage({
             <Field
               label="Address"
               value={
-                [account.addressLine, account.city, account.country]
+                [
+                  account.addressLine,
+                  account.street2,
+                  [account.postalCode, account.city].filter(Boolean).join(" "),
+                  account.region,
+                  account.country,
+                ]
                   .filter(Boolean)
                   .join(", ") || null
               }
