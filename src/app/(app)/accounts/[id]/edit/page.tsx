@@ -27,6 +27,8 @@ export default async function EditAccountPage({
           phone: account.phone,
           employees: account.employees,
           annualRevenue: account.annualRevenue,
+          taxNumber: account.taxNumber,
+          taxOffice: account.taxOffice,
           addressLine: account.addressLine,
           street2: account.street2,
           postalCode: account.postalCode,

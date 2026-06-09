@@ -23,6 +23,8 @@ type Props = {
     phone: string | null;
     employees: number | null;
     annualRevenue: string | null;
+    taxNumber: string | null;
+    taxOffice: string | null;
     addressLine: string | null;
     street2: string | null;
     postalCode: string | null;
@@ -93,9 +95,19 @@ export function AccountForm({ account }: Props) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="annualRevenue">Annual revenue</Label>
-            <Input id="annualRevenue" name="annualRevenue" type="number" min={0} step="0.01" defaultValue={account?.annualRevenue ?? ""} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="annualRevenue">Annual revenue</Label>
+              <Input id="annualRevenue" name="annualRevenue" type="number" min={0} step="0.01" defaultValue={account?.annualRevenue ?? ""} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="taxNumber">Tax number</Label>
+              <Input id="taxNumber" name="taxNumber" defaultValue={account?.taxNumber ?? ""} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="taxOffice">Tax office</Label>
+              <Input id="taxOffice" name="taxOffice" defaultValue={account?.taxOffice ?? ""} />
+            </div>
           </div>
 
           <div className="border-t pt-4">

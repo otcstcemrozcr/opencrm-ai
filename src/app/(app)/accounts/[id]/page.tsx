@@ -91,6 +91,8 @@ export default async function AccountDetailPage({
               label="Annual revenue"
               value={account.annualRevenue ? formatCurrency(Number(account.annualRevenue)) : null}
             />
+            <Field label="Tax number" value={account.taxNumber} />
+            <Field label="Tax office" value={account.taxOffice} />
             <Field
               label="Address"
               value={

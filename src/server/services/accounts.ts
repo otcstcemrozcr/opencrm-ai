@@ -12,6 +12,8 @@ export type AccountInput = {
   phone?: string | null;
   employees?: number | null;
   annualRevenue?: number | null;
+  taxNumber?: string | null;
+  taxOffice?: string | null;
   addressLine?: string | null;
   street2?: string | null;
   postalCode?: string | null;
@@ -35,6 +37,8 @@ function toValues(input: AccountInput) {
       input.annualRevenue === null || input.annualRevenue === undefined
         ? null
         : String(input.annualRevenue),
+    taxNumber: input.taxNumber || null,
+    taxOffice: input.taxOffice || null,
     addressLine: input.addressLine || null,
     street2: input.street2 || null,
     postalCode: input.postalCode || null,

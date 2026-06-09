@@ -126,6 +126,8 @@ export const accounts = pgTable(
     phone: text("phone"),
     employees: integer("employees"),
     annualRevenue: numeric("annual_revenue", { precision: 14, scale: 2 }),
+    taxNumber: text("tax_number"),
+    taxOffice: text("tax_office"),
     addressLine: text("address_line"),
     street2: text("street2"),
     postalCode: text("postal_code"),
