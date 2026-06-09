@@ -12,9 +12,7 @@ export function Sidebar({ role }: { role?: string }) {
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r bg-card md:flex">
       <div className="flex h-14 items-center border-b px-4">
-        <span className="text-lg font-semibold text-primary">
-          OpenCRM <span className="text-accent">AI</span>
-        </span>
+        <span className="text-lg font-semibold text-primary">OpenCRM AI</span>
       </div>
       <nav className="flex-1 space-y-1 p-2">
         {items.map((item) => {
