@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { listLeads, type LeadFilters } from "@/server/services/leads";
 import { listOrgUsers } from "@/server/services/users";
@@ -34,9 +34,14 @@ export default async function LeadsPage({
         description="Inbound and prospected leads to qualify."
         action={
           writable ? (
-            <Link href="/leads/new" className={buttonVariants()}>
-              <Plus className="h-4 w-4" /> New lead
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/import?entity=lead" className={buttonVariants({ variant: "outline" })}>
+                <Upload className="h-4 w-4" /> Import
+              </Link>
+              <Link href="/leads/new" className={buttonVariants()}>
+                <Plus className="h-4 w-4" /> New lead
+              </Link>
+            </div>
           ) : null
         }
       />

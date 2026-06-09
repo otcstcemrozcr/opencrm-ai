@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { listAccounts, type AccountFilters } from "@/server/services/accounts";
 import { listOrgUsers } from "@/server/services/users";
@@ -34,9 +34,14 @@ export default async function AccountsPage({
         description="Companies you sell to."
         action={
           writable ? (
-            <Link href="/accounts/new" className={buttonVariants()}>
-              <Plus className="h-4 w-4" /> New account
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/import?entity=account" className={buttonVariants({ variant: "outline" })}>
+                <Upload className="h-4 w-4" /> Import
+              </Link>
+              <Link href="/accounts/new" className={buttonVariants()}>
+                <Plus className="h-4 w-4" /> New account
+              </Link>
+            </div>
           ) : null
         }
       />

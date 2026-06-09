@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { listContacts, type ContactFilters } from "@/server/services/contacts";
 import { listOrgUsers } from "@/server/services/users";
@@ -31,9 +31,14 @@ export default async function ContactsPage({
         description="People at your accounts."
         action={
           writable ? (
-            <Link href="/contacts/new" className={buttonVariants()}>
-              <Plus className="h-4 w-4" /> New contact
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/import?entity=contact" className={buttonVariants({ variant: "outline" })}>
+                <Upload className="h-4 w-4" /> Import
+              </Link>
+              <Link href="/contacts/new" className={buttonVariants()}>
+                <Plus className="h-4 w-4" /> New contact
+              </Link>
+            </div>
           ) : null
         }
       />

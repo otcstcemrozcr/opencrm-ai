@@ -12,6 +12,7 @@ const PROTECTED_PREFIXES = [
   "/activities",
   "/quotes",
   "/audit",
+  "/import",
 ];
 
 const AUTH_PAGES = ["/sign-in", "/sign-up"];
@@ -53,6 +54,7 @@ export const config = {
     "/activities/:path*",
     "/quotes/:path*",
     "/audit/:path*",
+    "/import/:path*",
     "/sign-in",
     "/sign-up",
   ],
