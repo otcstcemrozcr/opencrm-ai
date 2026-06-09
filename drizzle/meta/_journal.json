@@ -71,6 +71,13 @@
       "when": 1781016210289,
       "tag": "0009_powerful_shocker",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1781027275602,
+      "tag": "0010_premium_starbolt",
+      "breakpoints": true
     }
   ]
 }

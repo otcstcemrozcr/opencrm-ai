@@ -33,6 +33,9 @@ export default async function AccountDetailPage({
     listOpportunitiesByAccount(user.orgId, account.id),
     listNotes(user.orgId, "account", account.id),
   ]);
+  const parent = account.parentAccountId
+    ? await getAccount(user.orgId, account.parentAccountId)
+    : null;
   const writable = canWrite(user.role);
 
   return (
@@ -96,6 +99,15 @@ export default async function AccountDetailPage({
             />
             <Field label="Tax number" value={account.taxNumber} />
             <Field label="Tax office" value={account.taxOffice} />
+            <Field label="Status" value={<span className="capitalize">{account.status}</span>} />
+            <Field label="Rating" value={account.rating ? <span className="capitalize">{account.rating}</span> : null} />
+            <Field label="Currency" value={account.currency} />
+            <Field label="Payment terms" value={account.paymentTerms} />
+            <Field label="Credit limit" value={account.creditLimit ? formatCurrency(Number(account.creditLimit), account.currency) : null} />
+            <Field
+              label="Parent account"
+              value={parent ? <Link href={`/accounts/${parent.id}`} className="text-accent hover:underline">{parent.name}</Link> : null}
+            />
             <Field
               label="Address"
               value={

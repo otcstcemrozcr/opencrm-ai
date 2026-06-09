@@ -10,7 +10,17 @@ import {
   pgEnum,
   index,
   uniqueIndex,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
+
+export const ratingEnum = pgEnum("rating", ["hot", "warm", "cold"]);
+export const accountStatusEnum = pgEnum("account_status", ["active", "inactive"]);
+export const forecastCategoryEnum = pgEnum("forecast_category", [
+  "pipeline",
+  "best_case",
+  "commit",
+  "omitted",
+]);
 
 export const userRoleEnum = pgEnum("user_role", [
   "admin",
@@ -128,6 +138,15 @@ export const accounts = pgTable(
     annualRevenue: numeric("annual_revenue", { precision: 14, scale: 2 }),
     taxNumber: text("tax_number"),
     taxOffice: text("tax_office"),
+    currency: text("currency").notNull().default("USD"),
+    paymentTerms: text("payment_terms"),
+    creditLimit: numeric("credit_limit", { precision: 14, scale: 2 }),
+    status: accountStatusEnum("status").notNull().default("active"),
+    rating: ratingEnum("rating"),
+    parentAccountId: uuid("parent_account_id").references(
+      (): AnyPgColumn => accounts.id,
+      { onDelete: "set null" }
+    ),
     addressLine: text("address_line"),
     street2: text("street2"),
     postalCode: text("postal_code"),
@@ -382,6 +401,9 @@ export type Session = typeof sessions.$inferSelect;
 export type UserRole = (typeof userRoleEnum.enumValues)[number];
 export type Account = typeof accounts.$inferSelect;
 export type AccountType = (typeof accountTypeEnum.enumValues)[number];
+export type AccountStatus = (typeof accountStatusEnum.enumValues)[number];
+export type Rating = (typeof ratingEnum.enumValues)[number];
+export type ForecastCategory = (typeof forecastCategoryEnum.enumValues)[number];
 export type Contact = typeof contacts.$inferSelect;
 export type Lead = typeof leads.$inferSelect;
 export type Opportunity = typeof opportunities.$inferSelect;

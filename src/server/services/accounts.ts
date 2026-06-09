@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, desc, asc, ilike, type SQL } from "drizzle-orm";
 import { db } from "@/server/db/client";
-import { accounts, type AccountType } from "@/server/db/schema";
+import { accounts, type AccountType, type AccountStatus, type Rating } from "@/server/db/schema";
 
 export type AccountFilters = { q?: string; type?: AccountType; sort?: string };
 
@@ -16,6 +16,12 @@ export type AccountInput = {
   annualRevenue?: number | null;
   taxNumber?: string | null;
   taxOffice?: string | null;
+  currency?: string;
+  paymentTerms?: string | null;
+  creditLimit?: number | null;
+  status?: AccountStatus;
+  rating?: Rating | null;
+  parentAccountId?: string | null;
   addressLine?: string | null;
   street2?: string | null;
   postalCode?: string | null;
@@ -41,6 +47,15 @@ function toValues(input: AccountInput) {
         : String(input.annualRevenue),
     taxNumber: input.taxNumber || null,
     taxOffice: input.taxOffice || null,
+    currency: input.currency || "USD",
+    paymentTerms: input.paymentTerms || null,
+    creditLimit:
+      input.creditLimit === null || input.creditLimit === undefined
+        ? null
+        : String(input.creditLimit),
+    status: input.status ?? "active",
+    rating: input.rating ?? null,
+    parentAccountId: input.parentAccountId || null,
     addressLine: input.addressLine || null,
     street2: input.street2 || null,
     postalCode: input.postalCode || null,

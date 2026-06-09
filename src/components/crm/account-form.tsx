@@ -11,8 +11,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 
 const TYPES = ["prospect", "customer", "partner", "other"] as const;
+const STATUSES = ["active", "inactive"] as const;
+const RATINGS = ["hot", "warm", "cold"] as const;
 
 type Props = {
+  parentOptions?: { id: string; name: string }[];
   account?: {
     id: string;
     name: string;
@@ -25,6 +28,12 @@ type Props = {
     annualRevenue: string | null;
     taxNumber: string | null;
     taxOffice: string | null;
+    currency: string;
+    paymentTerms: string | null;
+    creditLimit: string | null;
+    status: (typeof STATUSES)[number];
+    rating: (typeof RATINGS)[number] | null;
+    parentAccountId: string | null;
     addressLine: string | null;
     street2: string | null;
     postalCode: string | null;
@@ -44,7 +53,7 @@ function SubmitButton({ isEdit }: { isEdit: boolean }) {
   );
 }
 
-export function AccountForm({ account }: Props) {
+export function AccountForm({ account, parentOptions = [] }: Props) {
   const [state, formAction] = useFormState<FormState, FormData>(saveAccount, {});
   const isEdit = Boolean(account);
 
@@ -142,6 +151,50 @@ export function AccountForm({ account }: Props) {
                   <Label htmlFor="country">Country</Label>
                   <Input id="country" name="country" defaultValue={account?.country ?? ""} />
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <div className="mb-2 text-sm font-medium text-muted-foreground">Commercial</div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select id="status" name="status" defaultValue={account?.status ?? "active"}>
+                  {STATUSES.map((s) => (
+                    <option key={s} value={s} className="capitalize">{s}</option>
+                  ))}
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="rating">Rating</Label>
+                <Select id="rating" name="rating" defaultValue={account?.rating ?? ""}>
+                  <option value="">—</option>
+                  {RATINGS.map((r) => (
+                    <option key={r} value={r} className="capitalize">{r}</option>
+                  ))}
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="currency">Currency</Label>
+                <Input id="currency" name="currency" defaultValue={account?.currency ?? "USD"} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="paymentTerms">Payment terms</Label>
+                <Input id="paymentTerms" name="paymentTerms" defaultValue={account?.paymentTerms ?? ""} placeholder="e.g. Net 30" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="creditLimit">Credit limit</Label>
+                <Input id="creditLimit" name="creditLimit" type="number" min={0} step="0.01" defaultValue={account?.creditLimit ?? ""} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="parentAccountId">Parent account</Label>
+                <Select id="parentAccountId" name="parentAccountId" defaultValue={account?.parentAccountId ?? ""}>
+                  <option value="">— None —</option>
+                  {parentOptions.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </Select>
               </div>
             </div>
           </div>
