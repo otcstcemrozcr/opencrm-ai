@@ -2,24 +2,17 @@ import Link from "next/link";
 import { Plus, LayoutGrid, List } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { listOpportunities, type OpportunityFilters } from "@/server/services/opportunities";
+import { listOrgUsers } from "@/server/services/users";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
 import { FilterBar } from "@/components/crm/filter-bar";
+import { SelectableTable } from "@/components/crm/selectable-table";
 import { StageBadge } from "@/components/crm/status-badges";
 import { KanbanBoard } from "@/components/crm/kanban-board";
+import { buttonVariants } from "@/components/ui/button";
+import { cn, formatCurrency } from "@/lib/utils";
 
 const OPP_STAGES = ["new", "qualified", "discovery", "meeting", "proposal", "negotiation", "won", "lost"];
-import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { cn, formatCurrency } from "@/lib/utils";
 
 export default async function OpportunitiesPage({
   searchParams,
@@ -27,11 +20,14 @@ export default async function OpportunitiesPage({
   searchParams: { view?: string; q?: string; stage?: string; sort?: string };
 }) {
   const user = await requireUser();
-  const rows = await listOpportunities(user.orgId, {
-    q: searchParams.q,
-    stage: searchParams.stage as OpportunityFilters["stage"],
-    sort: searchParams.sort,
-  });
+  const [rows, owners] = await Promise.all([
+    listOpportunities(user.orgId, {
+      q: searchParams.q,
+      stage: searchParams.stage as OpportunityFilters["stage"],
+      sort: searchParams.sort,
+    }),
+    listOrgUsers(user.orgId),
+  ]);
   const writable = canWrite(user.role);
   const view = searchParams.view === "list" ? "list" : "kanban";
 
@@ -108,44 +104,27 @@ export default async function OpportunitiesPage({
           }))}
         />
       ) : (
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Account</TableHead>
-                <TableHead>Stage</TableHead>
-                <TableHead className="text-right">Value</TableHead>
-                <TableHead className="text-right">Prob.</TableHead>
-                <TableHead>Close</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((o) => (
-                <TableRow key={o.id}>
-                  <TableCell>
-                    <Link href={`/opportunities/${o.id}`} className="font-medium text-accent hover:underline">
-                      {o.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {o.accountId ? (
-                      <Link href={`/accounts/${o.accountId}`} className="hover:underline">
-                        {o.accountName}
-                      </Link>
-                    ) : (
-                      "—"
-                    )}
-                  </TableCell>
-                  <TableCell><StageBadge stage={o.stage} /></TableCell>
-                  <TableCell className="text-right tabular-nums">{formatCurrency(Number(o.value))}</TableCell>
-                  <TableCell className="text-right tabular-nums">{o.probability}%</TableCell>
-                  <TableCell className="text-muted-foreground">{o.expectedClose ?? "—"}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+        <SelectableTable
+          entity="opportunity"
+          canWrite={writable}
+          ownerOptions={owners.map((u) => ({ id: u.id, name: u.name }))}
+          headers={["Name", "Account", "Stage", "Value", "Prob.", "Close"]}
+          rows={rows.map((o) => ({
+            id: o.id,
+            cells: [
+              <Link key="c" href={`/opportunities/${o.id}`} className="font-medium text-accent hover:underline">{o.name}</Link>,
+              o.accountId ? (
+                <Link href={`/accounts/${o.accountId}`} className="text-muted-foreground hover:underline">{o.accountName}</Link>
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              ),
+              <StageBadge stage={o.stage} />,
+              <span className="tabular-nums">{formatCurrency(Number(o.value))}</span>,
+              <span className="tabular-nums">{o.probability}%</span>,
+              <span className="text-muted-foreground">{o.expectedClose ?? "—"}</span>,
+            ],
+          }))}
+        />
       )}
     </div>
   );

@@ -2,21 +2,15 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { listAccounts, type AccountFilters } from "@/server/services/accounts";
+import { listOrgUsers } from "@/server/services/users";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
 import { FilterBar } from "@/components/crm/filter-bar";
+import { SelectableTable } from "@/components/crm/selectable-table";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 
 const ACCOUNT_TYPES = ["prospect", "customer", "partner", "other"];
-import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 export default async function AccountsPage({
   searchParams,
@@ -24,7 +18,10 @@ export default async function AccountsPage({
   searchParams: { q?: string; type?: string; sort?: string };
 }) {
   const user = await requireUser();
-  const rows = await listAccounts(user.orgId, searchParams as AccountFilters);
+  const [rows, owners] = await Promise.all([
+    listAccounts(user.orgId, searchParams as AccountFilters),
+    listOrgUsers(user.orgId),
+  ]);
   const writable = canWrite(user.role);
 
   return (
@@ -63,30 +60,21 @@ export default async function AccountsPage({
           }
         />
       ) : (
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Industry</TableHead>
-                <TableHead>Website</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((a) => (
-                <TableRow key={a.id}>
-                  <TableCell>
-                    <Link href={`/accounts/${a.id}`} className="font-medium text-accent hover:underline">
-                      {a.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{a.industry ?? "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">{a.website ?? "—"}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+        <SelectableTable
+          entity="account"
+          canWrite={writable}
+          ownerOptions={owners.map((u) => ({ id: u.id, name: u.name }))}
+          headers={["Name", "Type", "Industry", "Website"]}
+          rows={rows.map((a) => ({
+            id: a.id,
+            cells: [
+              <Link key="c" href={`/accounts/${a.id}`} className="font-medium text-accent hover:underline">{a.name}</Link>,
+              <Badge variant="default" className="capitalize">{a.type}</Badge>,
+              <span className="text-muted-foreground">{a.industry ?? "—"}</span>,
+              <span className="text-muted-foreground">{a.website ?? "—"}</span>,
+            ],
+          }))}
+        />
       )}
     </div>
   );

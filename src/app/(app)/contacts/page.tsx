@@ -2,19 +2,12 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { listContacts, type ContactFilters } from "@/server/services/contacts";
+import { listOrgUsers } from "@/server/services/users";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
 import { FilterBar } from "@/components/crm/filter-bar";
+import { SelectableTable } from "@/components/crm/selectable-table";
 import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 export default async function ContactsPage({
   searchParams,
@@ -22,7 +15,10 @@ export default async function ContactsPage({
   searchParams: { q?: string; sort?: string };
 }) {
   const user = await requireUser();
-  const rows = await listContacts(user.orgId, searchParams as ContactFilters);
+  const [rows, owners] = await Promise.all([
+    listContacts(user.orgId, searchParams as ContactFilters),
+    listOrgUsers(user.orgId),
+  ]);
   const writable = canWrite(user.role);
 
   return (
@@ -57,40 +53,25 @@ export default async function ContactsPage({
           }
         />
       ) : (
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Account</TableHead>
-                <TableHead>Email</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell>
-                    <Link href={`/contacts/${c.id}`} className="font-medium text-accent hover:underline">
-                      {c.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{c.title ?? "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {c.accountId ? (
-                      <Link href={`/accounts/${c.accountId}`} className="hover:underline">
-                        {c.accountName}
-                      </Link>
-                    ) : (
-                      "—"
-                    )}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{c.email ?? "—"}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+        <SelectableTable
+          entity="contact"
+          canWrite={writable}
+          ownerOptions={owners.map((u) => ({ id: u.id, name: u.name }))}
+          headers={["Name", "Title", "Account", "Email"]}
+          rows={rows.map((c) => ({
+            id: c.id,
+            cells: [
+              <Link key="c" href={`/contacts/${c.id}`} className="font-medium text-accent hover:underline">{c.name}</Link>,
+              <span className="text-muted-foreground">{c.title ?? "—"}</span>,
+              c.accountId ? (
+                <Link href={`/accounts/${c.accountId}`} className="text-muted-foreground hover:underline">{c.accountName}</Link>
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              ),
+              <span className="text-muted-foreground">{c.email ?? "—"}</span>,
+            ],
+          }))}
+        />
       )}
     </div>
   );
