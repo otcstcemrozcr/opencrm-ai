@@ -5,8 +5,10 @@ import { requireUser, canWrite } from "@/server/auth/require-user";
 import { getAccount } from "@/server/services/accounts";
 import { listContactsByAccount } from "@/server/services/contacts";
 import { listOpportunitiesByAccount } from "@/server/services/opportunities";
+import { listNotes } from "@/server/services/notes";
 import { removeAccount } from "@/server/actions/accounts";
 import { PageHeader } from "@/components/crm/page-header";
+import { NotePanel } from "@/components/crm/note-panel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -26,9 +28,10 @@ export default async function AccountDetailPage({
   const account = await getAccount(user.orgId, params.id);
   if (!account) notFound();
 
-  const [contacts, opps] = await Promise.all([
+  const [contacts, opps, notes] = await Promise.all([
     listContactsByAccount(user.orgId, account.id),
     listOpportunitiesByAccount(user.orgId, account.id),
+    listNotes(user.orgId, "account", account.id),
   ]);
   const writable = canWrite(user.role);
 
@@ -180,6 +183,18 @@ export default async function AccountDetailPage({
               )}
             </CardContent>
           </Card>
+
+          <NotePanel
+            relatedType="account"
+            relatedId={account.id}
+            canWrite={writable}
+            items={notes.map((n) => ({
+              id: n.id,
+              body: n.body,
+              authorName: n.authorName,
+              createdAt: n.createdAt.toISOString(),
+            }))}
+          />
         </div>
       </div>
     </div>

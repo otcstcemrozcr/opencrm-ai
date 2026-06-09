@@ -254,6 +254,24 @@ export const activities = pgTable(
   })
 );
 
+export const notes = pgTable(
+  "notes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    body: text("body").notNull(),
+    relatedType: activityRelatedTypeEnum("related_type").notNull(),
+    relatedId: uuid("related_id").notNull(),
+    authorId: uuid("author_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    relatedIdx: index("notes_related_idx").on(t.orgId, t.relatedType, t.relatedId),
+  })
+);
+
 export const auditLogs = pgTable(
   "audit_logs",
   {
@@ -353,6 +371,7 @@ export type Activity = typeof activities.$inferSelect;
 export type ActivityType = (typeof activityTypeEnum.enumValues)[number];
 export type ActivityRelatedType = (typeof activityRelatedTypeEnum.enumValues)[number];
 export type AuditLog = typeof auditLogs.$inferSelect;
+export type Note = typeof notes.$inferSelect;
 export type Quote = typeof quotes.$inferSelect;
 export type QuoteLine = typeof quoteLines.$inferSelect;
 export type QuoteStatus = (typeof quoteStatusEnum.enumValues)[number];

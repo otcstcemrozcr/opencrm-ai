@@ -4,8 +4,10 @@ import { Pencil, Trash2 } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { getContact } from "@/server/services/contacts";
 import { getAccount } from "@/server/services/accounts";
+import { listNotes } from "@/server/services/notes";
 import { removeContact } from "@/server/actions/contacts";
 import { PageHeader } from "@/components/crm/page-header";
+import { NotePanel } from "@/components/crm/note-panel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -22,6 +24,7 @@ export default async function ContactDetailPage({
     ? await getAccount(user.orgId, contact.accountId)
     : null;
   const writable = canWrite(user.role);
+  const notes = await listNotes(user.orgId, "contact", contact.id);
 
   return (
     <div className="space-y-6">
@@ -71,6 +74,20 @@ export default async function ContactDetailPage({
           } />
         </CardContent>
       </Card>
+
+      <div className="max-w-2xl">
+        <NotePanel
+          relatedType="contact"
+          relatedId={contact.id}
+          canWrite={writable}
+          items={notes.map((n) => ({
+            id: n.id,
+            body: n.body,
+            authorName: n.authorName,
+            createdAt: n.createdAt.toISOString(),
+          }))}
+        />
+      </div>
     </div>
   );
 }

@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 import { Pencil, Trash2, ArrowRightLeft } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { getLead } from "@/server/services/leads";
+import { listNotes } from "@/server/services/notes";
 import { removeLead, convertLeadAction } from "@/server/actions/leads";
 import { PageHeader } from "@/components/crm/page-header";
 import { LeadStatusBadge } from "@/components/crm/status-badges";
+import { NotePanel } from "@/components/crm/note-panel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -22,6 +24,7 @@ export default async function LeadDetailPage({
 
   const writable = canWrite(user.role);
   const converted = lead.status === "converted";
+  const notes = await listNotes(user.orgId, "lead", lead.id);
 
   return (
     <div className="space-y-6">
@@ -116,6 +119,18 @@ export default async function LeadDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      <NotePanel
+        relatedType="lead"
+        relatedId={lead.id}
+        canWrite={writable}
+        items={notes.map((n) => ({
+          id: n.id,
+          body: n.body,
+          authorName: n.authorName,
+          createdAt: n.createdAt.toISOString(),
+        }))}
+      />
     </div>
   );
 }

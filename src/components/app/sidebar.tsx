@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation";
 import { navItems } from "@/config/nav";
 import { cn } from "@/lib/utils";
 
-export function Sidebar() {
+export function Sidebar({ role }: { role?: string }) {
   const pathname = usePathname();
+  const items = navItems.filter((item) => !item.adminOnly || role === "admin");
 
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r bg-card md:flex">
@@ -14,7 +15,7 @@ export function Sidebar() {
         <span className="text-lg font-semibold text-primary">OpenCRM AI</span>
       </div>
       <nav className="flex-1 space-y-1 p-2">
-        {navItems.map((item) => {
+        {items.map((item) => {
           const active =
             pathname === item.href || pathname.startsWith(item.href + "/");
           const Icon = item.icon;

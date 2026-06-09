@@ -1,6 +1,7 @@
 import "server-only";
+import { eq, desc } from "drizzle-orm";
 import { db } from "@/server/db/client";
-import { auditLogs } from "@/server/db/schema";
+import { auditLogs, users } from "@/server/db/schema";
 
 type AuditEntry = {
   orgId: string;
@@ -25,4 +26,22 @@ export async function writeAudit(entry: AuditEntry): Promise<void> {
   } catch {
     // swallow — auditing must not break the user action
   }
+}
+
+export async function listAuditLogs(orgId: string, limit = 200) {
+  return db
+    .select({
+      id: auditLogs.id,
+      action: auditLogs.action,
+      entityType: auditLogs.entityType,
+      entityId: auditLogs.entityId,
+      diff: auditLogs.diff,
+      createdAt: auditLogs.createdAt,
+      actorName: users.name,
+    })
+    .from(auditLogs)
+    .leftJoin(users, eq(auditLogs.actorId, users.id))
+    .where(eq(auditLogs.orgId, orgId))
+    .orderBy(desc(auditLogs.createdAt))
+    .limit(limit);
 }

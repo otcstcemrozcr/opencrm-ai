@@ -5,11 +5,13 @@ import { requireUser, canWrite } from "@/server/auth/require-user";
 import { getOpportunity } from "@/server/services/opportunities";
 import { listActivities } from "@/server/services/activities";
 import { getOpportunityInsight } from "@/server/ai/insight";
+import { listNotes } from "@/server/services/notes";
 import { removeOpportunity } from "@/server/actions/opportunities";
 import { PageHeader } from "@/components/crm/page-header";
 import { StageBadge } from "@/components/crm/status-badges";
 import { InsightCallout } from "@/components/crm/insight-callout";
 import { ActivityPanel } from "@/components/crm/activity-panel";
+import { NotePanel } from "@/components/crm/note-panel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
@@ -23,9 +25,10 @@ export default async function OpportunityDetailPage({
   const opp = await getOpportunity(user.orgId, params.id);
   if (!opp) notFound();
 
-  const [activities, insight] = await Promise.all([
+  const [activities, insight, notes] = await Promise.all([
     listActivities(user.orgId, "opportunity", opp.id),
     getOpportunityInsight(user.orgId, opp.id),
+    listNotes(user.orgId, "opportunity", opp.id),
   ]);
   const writable = canWrite(user.role);
 
@@ -82,7 +85,7 @@ export default async function OpportunityDetailPage({
           </CardContent>
         </Card>
 
-        <div className="lg:col-span-2">
+        <div className="space-y-6 lg:col-span-2">
           <ActivityPanel
             relatedType="opportunity"
             relatedId={opp.id}
@@ -95,6 +98,17 @@ export default async function OpportunityDetailPage({
               dueAt: a.dueAt ? a.dueAt.toISOString() : null,
               completedAt: a.completedAt ? a.completedAt.toISOString() : null,
               createdAt: a.createdAt.toISOString(),
+            }))}
+          />
+          <NotePanel
+            relatedType="opportunity"
+            relatedId={opp.id}
+            canWrite={writable}
+            items={notes.map((n) => ({
+              id: n.id,
+              body: n.body,
+              authorName: n.authorName,
+              createdAt: n.createdAt.toISOString(),
             }))}
           />
         </div>
