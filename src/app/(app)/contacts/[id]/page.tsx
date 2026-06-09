@@ -63,8 +63,14 @@ export default async function ContactDetailPage({
               </Link>
             ) : null
           } />
+          <Field label="Department" value={contact.department} />
           <Field label="Email" value={contact.email} />
+          <Field label="Secondary email" value={contact.secondaryEmail} />
           <Field label="Phone" value={contact.phone} />
+          <Field label="Mobile" value={contact.mobile} />
+          {contact.doNotContact && (
+            <Field label="Compliance" value={<span className="text-destructive">Do not contact</span>} />
+          )}
           <Field label="LinkedIn" value={
             contact.linkedin ? (
               <a href={contact.linkedin} target="_blank" rel="noreferrer" className="text-accent hover:underline">

@@ -78,6 +78,13 @@
       "when": 1781027275602,
       "tag": "0010_premium_starbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1781028320650,
+      "tag": "0011_tiresome_red_shift",
+      "breakpoints": true
     }
   ]
 }

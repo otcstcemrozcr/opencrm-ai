@@ -24,11 +24,16 @@ export default async function EditContactPage({
         accounts={accounts.map((a) => ({ id: a.id, name: a.name }))}
         contact={{
           id: contact.id,
+          salutation: contact.salutation,
           name: contact.name,
           email: contact.email,
+          secondaryEmail: contact.secondaryEmail,
           phone: contact.phone,
+          mobile: contact.mobile,
           linkedin: contact.linkedin,
           title: contact.title,
+          department: contact.department,
+          doNotContact: contact.doNotContact,
           accountId: contact.accountId,
         }}
       />

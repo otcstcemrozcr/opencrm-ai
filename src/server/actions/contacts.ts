@@ -14,11 +14,16 @@ import { writeAudit } from "@/server/services/audit";
 export type FormState = { error?: string };
 
 const schema = z.object({
+  salutation: z.string().max(20).optional(),
   name: z.string().min(1, "Name is required").max(200),
   email: z.string().email("Invalid email").max(200).optional().or(z.literal("")),
+  secondaryEmail: z.string().email("Invalid email").max(200).optional().or(z.literal("")),
   phone: z.string().max(60).optional(),
+  mobile: z.string().max(60).optional(),
   linkedin: z.string().max(200).optional(),
   title: z.string().max(120).optional(),
+  department: z.string().max(120).optional(),
+  doNotContact: z.coerce.boolean().optional(),
   accountId: z.string().uuid().optional().or(z.literal("")),
 });
 
@@ -31,11 +36,16 @@ export async function saveContact(
 
   const id = (formData.get("id") as string) || null;
   const parsed = schema.safeParse({
+    salutation: formData.get("salutation") || undefined,
     name: formData.get("name"),
     email: formData.get("email") || "",
+    secondaryEmail: formData.get("secondaryEmail") || "",
     phone: formData.get("phone") || undefined,
+    mobile: formData.get("mobile") || undefined,
     linkedin: formData.get("linkedin") || undefined,
     title: formData.get("title") || undefined,
+    department: formData.get("department") || undefined,
+    doNotContact: formData.get("doNotContact") === "on",
     accountId: formData.get("accountId") || "",
   });
   if (!parsed.success) {
@@ -43,11 +53,16 @@ export async function saveContact(
   }
 
   const input = {
+    salutation: parsed.data.salutation || null,
     name: parsed.data.name,
     email: parsed.data.email || null,
+    secondaryEmail: parsed.data.secondaryEmail || null,
     phone: parsed.data.phone || null,
+    mobile: parsed.data.mobile || null,
     linkedin: parsed.data.linkedin || null,
     title: parsed.data.title || null,
+    department: parsed.data.department || null,
+    doNotContact: parsed.data.doNotContact ?? false,
     accountId: parsed.data.accountId || null,
   };
 

@@ -6,14 +6,36 @@ import { contacts, accounts } from "@/server/db/schema";
 export type ContactFilters = { q?: string; sort?: string };
 
 export type ContactInput = {
+  salutation?: string | null;
   name: string;
   email?: string | null;
+  secondaryEmail?: string | null;
   phone?: string | null;
+  mobile?: string | null;
   linkedin?: string | null;
   title?: string | null;
+  department?: string | null;
+  doNotContact?: boolean;
   accountId?: string | null;
   ownerId?: string | null;
 };
+
+function contactValues(input: ContactInput) {
+  return {
+    salutation: input.salutation || null,
+    name: input.name,
+    email: input.email || null,
+    secondaryEmail: input.secondaryEmail || null,
+    phone: input.phone || null,
+    mobile: input.mobile || null,
+    linkedin: input.linkedin || null,
+    title: input.title || null,
+    department: input.department || null,
+    doNotContact: input.doNotContact ?? false,
+    accountId: input.accountId || null,
+    ownerId: input.ownerId || null,
+  };
+}
 
 export async function listContacts(orgId: string, filters: ContactFilters = {}) {
   const conds: SQL[] = [eq(contacts.orgId, orgId)];
@@ -60,16 +82,7 @@ export async function getContact(orgId: string, id: string) {
 export async function createContact(orgId: string, input: ContactInput) {
   const [row] = await db
     .insert(contacts)
-    .values({
-      orgId,
-      name: input.name,
-      email: input.email || null,
-      phone: input.phone || null,
-      linkedin: input.linkedin || null,
-      title: input.title || null,
-      accountId: input.accountId || null,
-      ownerId: input.ownerId || null,
-    })
+    .values({ orgId, ...contactValues(input) })
     .returning();
   return row;
 }
@@ -77,16 +90,7 @@ export async function createContact(orgId: string, input: ContactInput) {
 export async function updateContact(orgId: string, id: string, input: ContactInput) {
   const [row] = await db
     .update(contacts)
-    .set({
-      name: input.name,
-      email: input.email || null,
-      phone: input.phone || null,
-      linkedin: input.linkedin || null,
-      title: input.title || null,
-      accountId: input.accountId || null,
-      ownerId: input.ownerId || null,
-      updatedAt: new Date(),
-    })
+    .set({ ...contactValues(input), updatedAt: new Date() })
     .where(and(eq(contacts.orgId, orgId), eq(contacts.id, id)))
     .returning();
   return row ?? null;
