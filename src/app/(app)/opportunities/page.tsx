@@ -3,9 +3,11 @@ import { Plus, LayoutGrid, List } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { listOpportunities, type OpportunityFilters } from "@/server/services/opportunities";
 import { listOrgUsers } from "@/server/services/users";
+import { listSavedViews } from "@/server/services/saved-views";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
 import { FilterBar } from "@/components/crm/filter-bar";
+import { SavedViews } from "@/components/crm/saved-views";
 import { SelectableTable } from "@/components/crm/selectable-table";
 import { StageBadge } from "@/components/crm/status-badges";
 import { KanbanBoard } from "@/components/crm/kanban-board";
@@ -20,13 +22,14 @@ export default async function OpportunitiesPage({
   searchParams: { view?: string; q?: string; stage?: string; sort?: string };
 }) {
   const user = await requireUser();
-  const [rows, owners] = await Promise.all([
+  const [rows, owners, views] = await Promise.all([
     listOpportunities(user.orgId, {
       q: searchParams.q,
       stage: searchParams.stage as OpportunityFilters["stage"],
       sort: searchParams.sort,
     }),
     listOrgUsers(user.orgId),
+    listSavedViews(user.orgId, user.id, "opportunity"),
   ]);
   const writable = canWrite(user.role);
   const view = searchParams.view === "list" ? "list" : "kanban";
@@ -78,6 +81,8 @@ export default async function OpportunitiesPage({
           { value: "name_asc", label: "Name (A→Z)" },
         ]}
       />
+
+      <SavedViews entity="opportunity" views={views.map((v) => ({ id: v.id, name: v.name, query: v.query }))} />
 
       {rows.length === 0 ? (
         <EmptyState

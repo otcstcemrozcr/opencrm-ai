@@ -3,9 +3,11 @@ import { Plus } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { listAccounts, type AccountFilters } from "@/server/services/accounts";
 import { listOrgUsers } from "@/server/services/users";
+import { listSavedViews } from "@/server/services/saved-views";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
 import { FilterBar } from "@/components/crm/filter-bar";
+import { SavedViews } from "@/components/crm/saved-views";
 import { SelectableTable } from "@/components/crm/selectable-table";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -18,9 +20,10 @@ export default async function AccountsPage({
   searchParams: { q?: string; type?: string; sort?: string };
 }) {
   const user = await requireUser();
-  const [rows, owners] = await Promise.all([
+  const [rows, owners, views] = await Promise.all([
     listAccounts(user.orgId, searchParams as AccountFilters),
     listOrgUsers(user.orgId),
+    listSavedViews(user.orgId, user.id, "account"),
   ]);
   const writable = canWrite(user.role);
 
@@ -46,6 +49,8 @@ export default async function AccountsPage({
           { value: "created_asc", label: "Oldest" },
         ]}
       />
+
+      <SavedViews entity="account" views={views.map((v) => ({ id: v.id, name: v.name, query: v.query }))} />
 
       {rows.length === 0 ? (
         <EmptyState

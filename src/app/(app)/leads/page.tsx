@@ -3,9 +3,11 @@ import { Plus } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { listLeads, type LeadFilters } from "@/server/services/leads";
 import { listOrgUsers } from "@/server/services/users";
+import { listSavedViews } from "@/server/services/saved-views";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
 import { FilterBar } from "@/components/crm/filter-bar";
+import { SavedViews } from "@/components/crm/saved-views";
 import { SelectableTable } from "@/components/crm/selectable-table";
 import { LeadStatusBadge } from "@/components/crm/status-badges";
 import { buttonVariants } from "@/components/ui/button";
@@ -18,9 +20,10 @@ export default async function LeadsPage({
   searchParams: { q?: string; status?: string; sort?: string };
 }) {
   const user = await requireUser();
-  const [rows, owners] = await Promise.all([
+  const [rows, owners, views] = await Promise.all([
     listLeads(user.orgId, searchParams as LeadFilters),
     listOrgUsers(user.orgId),
+    listSavedViews(user.orgId, user.id, "lead"),
   ]);
   const writable = canWrite(user.role);
 
@@ -48,6 +51,8 @@ export default async function LeadsPage({
           { value: "created_asc", label: "Oldest" },
         ]}
       />
+
+      <SavedViews entity="lead" views={views.map((v) => ({ id: v.id, name: v.name, query: v.query }))} />
 
       {rows.length === 0 ? (
         <EmptyState

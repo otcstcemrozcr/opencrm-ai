@@ -3,9 +3,11 @@ import { Plus } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { listContacts, type ContactFilters } from "@/server/services/contacts";
 import { listOrgUsers } from "@/server/services/users";
+import { listSavedViews } from "@/server/services/saved-views";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
 import { FilterBar } from "@/components/crm/filter-bar";
+import { SavedViews } from "@/components/crm/saved-views";
 import { SelectableTable } from "@/components/crm/selectable-table";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -15,9 +17,10 @@ export default async function ContactsPage({
   searchParams: { q?: string; sort?: string };
 }) {
   const user = await requireUser();
-  const [rows, owners] = await Promise.all([
+  const [rows, owners, views] = await Promise.all([
     listContacts(user.orgId, searchParams as ContactFilters),
     listOrgUsers(user.orgId),
+    listSavedViews(user.orgId, user.id, "contact"),
   ]);
   const writable = canWrite(user.role);
 
@@ -39,6 +42,8 @@ export default async function ContactsPage({
         searchPlaceholder="Search name or email…"
         sorts={[{ value: "name_asc", label: "Name (A→Z)" }]}
       />
+
+      <SavedViews entity="contact" views={views.map((v) => ({ id: v.id, name: v.name, query: v.query }))} />
 
       {rows.length === 0 ? (
         <EmptyState
