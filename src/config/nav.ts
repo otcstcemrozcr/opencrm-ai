@@ -11,6 +11,7 @@ import {
   CopyCheck,
   BarChart3,
   ShieldCheck,
+  UserCog,
   type LucideIcon,
 } from "lucide-react";
 
@@ -34,5 +35,6 @@ export const navItems: NavItem[] = [
   { label: "Quotes", href: "/quotes", icon: FileText },
   { label: "Reports", href: "/reports", icon: BarChart3 },
   { label: "Duplicates", href: "/duplicates", icon: CopyCheck },
+  { label: "Users", href: "/settings/users", icon: UserCog, adminOnly: true },
   { label: "Audit log", href: "/audit", icon: ShieldCheck, adminOnly: true },
 ];

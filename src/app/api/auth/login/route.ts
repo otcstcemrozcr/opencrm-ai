@@ -35,6 +35,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
   }
 
+  if (!user.isActive) {
+    return NextResponse.json(
+      { error: "This account has been deactivated. Contact your administrator." },
+      { status: 403 }
+    );
+  }
+
   await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
 
   await createSession({ id: user.id, orgId: user.orgId, role: user.role });
