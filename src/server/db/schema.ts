@@ -80,6 +80,42 @@ export const sessions = pgTable(
   })
 );
 
+export const campaignTypeEnum = pgEnum("campaign_type", [
+  "email",
+  "event",
+  "webinar",
+  "linkedin",
+  "other",
+]);
+export const campaignStatusEnum = pgEnum("campaign_status", [
+  "planned",
+  "active",
+  "completed",
+]);
+
+export const campaigns = pgTable(
+  "campaigns",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    type: campaignTypeEnum("type").notNull().default("email"),
+    status: campaignStatusEnum("status").notNull().default("planned"),
+    startDate: date("start_date"),
+    endDate: date("end_date"),
+    budget: numeric("budget", { precision: 14, scale: 2 }),
+    description: text("description"),
+    ownerId: uuid("owner_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    orgIdx: index("campaigns_org_idx").on(t.orgId),
+  })
+);
+
 export const leadStatusEnum = pgEnum("lead_status", [
   "new",
   "working",
@@ -205,6 +241,7 @@ export const leads = pgTable(
     linkedin: text("linkedin"),
     source: text("source"),
     industry: text("industry"),
+    campaignId: uuid("campaign_id").references(() => campaigns.id, { onDelete: "set null" }),
     status: leadStatusEnum("status").notNull().default("new"),
     score: integer("score").notNull().default(0),
     rating: ratingEnum("rating"),
@@ -444,6 +481,9 @@ export type Rating = (typeof ratingEnum.enumValues)[number];
 export type ForecastCategory = (typeof forecastCategoryEnum.enumValues)[number];
 export type Contact = typeof contacts.$inferSelect;
 export type Lead = typeof leads.$inferSelect;
+export type Campaign = typeof campaigns.$inferSelect;
+export type CampaignType = (typeof campaignTypeEnum.enumValues)[number];
+export type CampaignStatus = (typeof campaignStatusEnum.enumValues)[number];
 export type Opportunity = typeof opportunities.$inferSelect;
 export type LeadStatus = (typeof leadStatusEnum.enumValues)[number];
 export type OpportunityStage = (typeof opportunityStageEnum.enumValues)[number];

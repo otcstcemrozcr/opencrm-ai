@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireRole } from "@/server/auth/require-user";
 import { getLead } from "@/server/services/leads";
+import { listCampaigns } from "@/server/services/campaigns";
 import { PageHeader } from "@/components/crm/page-header";
 import { LeadForm } from "@/components/crm/lead-form";
 
@@ -10,13 +11,17 @@ export default async function EditLeadPage({
   params: { id: string };
 }) {
   const user = await requireRole("rep");
-  const lead = await getLead(user.orgId, params.id);
+  const [lead, campaigns] = await Promise.all([
+    getLead(user.orgId, params.id),
+    listCampaigns(user.orgId),
+  ]);
   if (!lead) notFound();
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader title="Edit lead" description={lead.company} />
       <LeadForm
+        campaigns={campaigns.map((c) => ({ id: c.id, name: c.name }))}
         lead={{
           id: lead.id,
           company: lead.company,
@@ -34,6 +39,7 @@ export default async function EditLeadPage({
           utmMedium: lead.utmMedium,
           utmCampaign: lead.utmCampaign,
           doNotContact: lead.doNotContact,
+          campaignId: lead.campaignId,
         }}
       />
     </div>

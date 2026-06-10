@@ -5,6 +5,7 @@ import { SESSION_COOKIE } from "@/server/auth/constants";
 // Routes that require authentication (the protected app shell).
 const PROTECTED_PREFIXES = [
   "/dashboard",
+  "/campaigns",
   "/leads",
   "/opportunities",
   "/accounts",
@@ -49,6 +50,7 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/campaigns/:path*",
     "/leads/:path*",
     "/opportunities/:path*",
     "/accounts/:path*",

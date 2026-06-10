@@ -30,6 +30,7 @@ const schema = z.object({
   utmMedium: z.string().max(120).optional(),
   utmCampaign: z.string().max(120).optional(),
   doNotContact: z.coerce.boolean().optional(),
+  campaignId: z.string().uuid().optional().or(z.literal("")),
 });
 
 export async function saveLead(
@@ -56,6 +57,7 @@ export async function saveLead(
     utmMedium: formData.get("utmMedium") || undefined,
     utmCampaign: formData.get("utmCampaign") || undefined,
     doNotContact: formData.get("doNotContact") === "on",
+    campaignId: formData.get("campaignId") || "",
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -77,6 +79,7 @@ export async function saveLead(
     utmMedium: parsed.data.utmMedium || null,
     utmCampaign: parsed.data.utmCampaign || null,
     doNotContact: parsed.data.doNotContact ?? false,
+    campaignId: parsed.data.campaignId || null,
   };
 
   let targetId = id;

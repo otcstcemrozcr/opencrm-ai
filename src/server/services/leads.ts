@@ -31,12 +31,14 @@ export type LeadInput = {
   utmMedium?: string | null;
   utmCampaign?: string | null;
   doNotContact?: boolean;
+  campaignId?: string | null;
   ownerId?: string | null;
 };
 
 function leadExtra(input: LeadInput) {
   return {
     rating: input.rating ?? null,
+    campaignId: input.campaignId || null,
     estimatedValue:
       input.estimatedValue === null || input.estimatedValue === undefined
         ? null

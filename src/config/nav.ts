@@ -1,5 +1,6 @@
 import {
   LayoutDashboard,
+  Megaphone,
   Users,
   Building2,
   Contact,
@@ -22,6 +23,7 @@ export type NavItem = {
 // MVP-0 modules + Phase 2 additions. Reporting/Campaigns land later.
 export const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Campaigns", href: "/campaigns", icon: Megaphone },
   { label: "Leads", href: "/leads", icon: Users },
   { label: "Opportunities", href: "/opportunities", icon: Target },
   { label: "Accounts", href: "/accounts", icon: Building2 },

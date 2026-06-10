@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 const STATUSES = ["new", "working", "qualified", "unqualified", "converted"] as const;
 
 type Props = {
+  campaigns?: { id: string; name: string }[];
   lead?: {
     id: string;
     company: string;
@@ -29,6 +30,7 @@ type Props = {
     utmMedium: string | null;
     utmCampaign: string | null;
     doNotContact: boolean;
+    campaignId: string | null;
   };
 };
 
@@ -43,7 +45,7 @@ function SubmitButton({ isEdit }: { isEdit: boolean }) {
   );
 }
 
-export function LeadForm({ lead }: Props) {
+export function LeadForm({ lead, campaigns = [] }: Props) {
   const [state, formAction] = useFormState<FormState, FormData>(saveLead, {});
   const isEdit = Boolean(lead);
 
@@ -86,9 +88,20 @@ export function LeadForm({ lead }: Props) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="linkedin">LinkedIn</Label>
-            <Input id="linkedin" name="linkedin" defaultValue={lead?.linkedin ?? ""} placeholder="https://linkedin.com/in/…" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="linkedin">LinkedIn</Label>
+              <Input id="linkedin" name="linkedin" defaultValue={lead?.linkedin ?? ""} placeholder="https://linkedin.com/in/…" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="campaignId">Campaign</Label>
+              <Select id="campaignId" name="campaignId" defaultValue={lead?.campaignId ?? ""}>
+                <option value="">— None —</option>
+                {campaigns.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </Select>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
