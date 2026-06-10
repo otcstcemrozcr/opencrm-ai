@@ -35,9 +35,15 @@ type Props = {
     expectedClose: string | null;
     competitor: string | null;
     notes: string | null;
+    nextStep: string | null;
+    lossReason: string | null;
+    forecastCategory: "pipeline" | "best_case" | "commit" | "omitted";
+    currency: string;
   };
   defaultAccountId?: string;
 };
+
+const FORECASTS = ["pipeline", "best_case", "commit", "omitted"] as const;
 
 function SubmitButton({ isEdit }: { isEdit: boolean }) {
   const { pending } = useFormStatus();
@@ -103,9 +109,33 @@ export function OpportunityForm({ accounts, opportunity, defaultAccountId }: Pro
             </div>
           </div>
 
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="forecastCategory">Forecast category</Label>
+              <Select id="forecastCategory" name="forecastCategory" defaultValue={opportunity?.forecastCategory ?? "pipeline"}>
+                {FORECASTS.map((f) => (
+                  <option key={f} value={f} className="capitalize">{f.replace("_", " ")}</option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="currency">Currency</Label>
+              <Input id="currency" name="currency" defaultValue={opportunity?.currency ?? "USD"} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="competitor">Competitor</Label>
+              <Input id="competitor" name="competitor" defaultValue={opportunity?.competitor ?? ""} />
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="competitor">Competitor</Label>
-            <Input id="competitor" name="competitor" defaultValue={opportunity?.competitor ?? ""} />
+            <Label htmlFor="nextStep">Next step</Label>
+            <Input id="nextStep" name="nextStep" defaultValue={opportunity?.nextStep ?? ""} placeholder="e.g. Send revised proposal" />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="lossReason">Loss reason (if lost)</Label>
+            <Input id="lossReason" name="lossReason" defaultValue={opportunity?.lossReason ?? ""} />
           </div>
 
           <div className="space-y-2">

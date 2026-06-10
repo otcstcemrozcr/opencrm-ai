@@ -35,6 +35,10 @@ const schema = z.object({
   expectedClose: z.string().optional().or(z.literal("")),
   competitor: z.string().max(200).optional(),
   notes: z.string().max(5000).optional(),
+  nextStep: z.string().max(300).optional(),
+  lossReason: z.string().max(300).optional(),
+  forecastCategory: z.enum(["pipeline", "best_case", "commit", "omitted"]).optional(),
+  currency: z.string().max(8).optional(),
 });
 
 export async function saveOpportunity(
@@ -54,6 +58,10 @@ export async function saveOpportunity(
     expectedClose: formData.get("expectedClose") || "",
     competitor: formData.get("competitor") || undefined,
     notes: formData.get("notes") || undefined,
+    nextStep: formData.get("nextStep") || undefined,
+    lossReason: formData.get("lossReason") || undefined,
+    forecastCategory: formData.get("forecastCategory") || undefined,
+    currency: formData.get("currency") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -68,6 +76,10 @@ export async function saveOpportunity(
     expectedClose: parsed.data.expectedClose || null,
     competitor: parsed.data.competitor || null,
     notes: parsed.data.notes || null,
+    nextStep: parsed.data.nextStep || null,
+    lossReason: parsed.data.lossReason || null,
+    forecastCategory: parsed.data.forecastCategory ?? "pipeline",
+    currency: parsed.data.currency || "USD",
   };
 
   let targetId = id;

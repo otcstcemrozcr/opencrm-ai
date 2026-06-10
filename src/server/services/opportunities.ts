@@ -17,6 +17,10 @@ export type OpportunityInput = {
   probability?: number;
   expectedClose?: string | null;
   ownerId?: string | null;
+  nextStep?: string | null;
+  lossReason?: string | null;
+  forecastCategory?: "pipeline" | "best_case" | "commit" | "omitted";
+  currency?: string;
 };
 
 export async function listOpportunities(orgId: string, filters: OpportunityFilters = {}) {
@@ -63,6 +67,10 @@ export async function getOpportunity(orgId: string, id: string) {
       expectedClose: opportunities.expectedClose,
       competitor: opportunities.competitor,
       notes: opportunities.notes,
+      nextStep: opportunities.nextStep,
+      lossReason: opportunities.lossReason,
+      forecastCategory: opportunities.forecastCategory,
+      currency: opportunities.currency,
       accountId: opportunities.accountId,
       accountName: accounts.name,
     })
@@ -93,6 +101,9 @@ export async function createOpportunity(orgId: string, input: OpportunityInput) 
       probability: input.probability ?? 0,
       expectedClose: input.expectedClose || null,
       ownerId: input.ownerId || null,
+      nextStep: input.nextStep || null,
+      forecastCategory: input.forecastCategory ?? "pipeline",
+      currency: input.currency || "USD",
     })
     .returning();
   return row;
@@ -115,6 +126,10 @@ export async function updateOpportunity(
       expectedClose: input.expectedClose || null,
       competitor: input.competitor || null,
       notes: input.notes || null,
+      nextStep: input.nextStep || null,
+      lossReason: input.lossReason || null,
+      forecastCategory: input.forecastCategory ?? "pipeline",
+      currency: input.currency || "USD",
       closedAt: closing ? new Date() : null,
       updatedAt: new Date(),
     })

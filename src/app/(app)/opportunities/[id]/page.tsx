@@ -81,6 +81,10 @@ export default async function OpportunityDetailPage({
               }
             />
             <Field label="Competitor" value={opp.competitor} />
+            <Field label="Forecast category" value={<span className="capitalize">{opp.forecastCategory.replace("_", " ")}</span>} />
+            <Field label="Currency" value={opp.currency} />
+            <Field label="Next step" value={opp.nextStep} />
+            {opp.stage === "lost" && <Field label="Loss reason" value={opp.lossReason} />}
             {opp.notes && <Field label="Notes" value={<span className="whitespace-pre-wrap">{opp.notes}</span>} />}
           </CardContent>
         </Card>

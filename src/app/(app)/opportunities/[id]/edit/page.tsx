@@ -32,6 +32,10 @@ export default async function EditOpportunityPage({
           expectedClose: opp.expectedClose,
           competitor: opp.competitor,
           notes: opp.notes,
+          nextStep: opp.nextStep,
+          lossReason: opp.lossReason,
+          forecastCategory: opp.forecastCategory,
+          currency: opp.currency,
         }}
       />
     </div>
