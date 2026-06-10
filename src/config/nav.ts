@@ -9,6 +9,7 @@ import {
   Package,
   CalendarClock,
   CopyCheck,
+  BarChart3,
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
@@ -31,6 +32,7 @@ export const navItems: NavItem[] = [
   { label: "Activities", href: "/activities", icon: CalendarClock },
   { label: "Products", href: "/products", icon: Package },
   { label: "Quotes", href: "/quotes", icon: FileText },
+  { label: "Reports", href: "/reports", icon: BarChart3 },
   { label: "Duplicates", href: "/duplicates", icon: CopyCheck },
   { label: "Audit log", href: "/audit", icon: ShieldCheck, adminOnly: true },
 ];
