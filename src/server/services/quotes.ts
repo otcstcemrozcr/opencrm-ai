@@ -235,6 +235,82 @@ export async function updateQuote(
   });
 }
 
+export async function listQuoteVersions(orgId: string, quoteNo: string) {
+  return db
+    .select({
+      id: quotes.id,
+      version: quotes.version,
+      status: quotes.status,
+      total: quotes.total,
+      currency: quotes.currency,
+      createdAt: quotes.createdAt,
+    })
+    .from(quotes)
+    .where(and(eq(quotes.orgId, orgId), eq(quotes.quoteNo, quoteNo)))
+    .orderBy(desc(quotes.version));
+}
+
+/** Clone a quote (and its lines) as a new draft version (version + 1). */
+export async function createQuoteVersion(orgId: string, id: string) {
+  return db.transaction(async (tx) => {
+    const [base] = await tx
+      .select()
+      .from(quotes)
+      .where(and(eq(quotes.orgId, orgId), eq(quotes.id, id)))
+      .limit(1);
+    if (!base) return null;
+
+    // Highest existing version for this quote number.
+    const siblings = await tx
+      .select({ version: quotes.version })
+      .from(quotes)
+      .where(and(eq(quotes.orgId, orgId), eq(quotes.quoteNo, base.quoteNo)));
+    const nextVersion = Math.max(...siblings.map((s) => s.version), base.version) + 1;
+
+    const [copy] = await tx
+      .insert(quotes)
+      .values({
+        orgId,
+        accountId: base.accountId,
+        opportunityId: base.opportunityId,
+        quoteNo: base.quoteNo,
+        version: nextVersion,
+        status: "draft",
+        currency: base.currency,
+        subtotal: base.subtotal,
+        discount: base.discount,
+        tax: base.tax,
+        total: base.total,
+        notes: base.notes,
+        validUntil: base.validUntil,
+      })
+      .returning();
+
+    const lines = await tx
+      .select()
+      .from(quoteLines)
+      .where(and(eq(quoteLines.orgId, orgId), eq(quoteLines.quoteId, id)));
+    if (lines.length > 0) {
+      await tx.insert(quoteLines).values(
+        lines.map((l) => ({
+          orgId,
+          quoteId: copy.id,
+          kind: l.kind,
+          name: l.name,
+          description: l.description,
+          qty: l.qty,
+          unitPrice: l.unitPrice,
+          discount: l.discount,
+          taxRate: l.taxRate,
+          lineTotal: l.lineTotal,
+          sortOrder: l.sortOrder,
+        }))
+      );
+    }
+    return copy.id;
+  });
+}
+
 export async function setQuoteStatus(orgId: string, id: string, status: QuoteStatus) {
   const [row] = await db
     .update(quotes)

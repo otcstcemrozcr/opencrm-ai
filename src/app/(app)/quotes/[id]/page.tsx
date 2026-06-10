@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, Trash2, FileDown } from "lucide-react";
+import { Pencil, Trash2, FileDown, Copy } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
-import { getQuote } from "@/server/services/quotes";
-import { removeQuote, changeQuoteStatus } from "@/server/actions/quotes";
+import { getQuote, listQuoteVersions } from "@/server/services/quotes";
+import { removeQuote, changeQuoteStatus, newQuoteVersion } from "@/server/actions/quotes";
 import { PageHeader } from "@/components/crm/page-header";
 import { QuoteStatusBadge } from "@/components/crm/status-badges";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -32,12 +32,13 @@ export default async function QuoteDetailPage({
 
   const writable = canWrite(user.role);
   const cur = quote.currency;
+  const versions = await listQuoteVersions(user.orgId, quote.quoteNo);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title={quote.quoteNo}
-        description={quote.accountName ?? undefined}
+        description={`Version ${quote.version}${quote.accountName ? ` · ${quote.accountName}` : ""}`}
         action={
           <div className="flex items-center gap-2">
             <Link href={`/quotes/${quote.id}/pdf`} className={buttonVariants({ variant: "outline" })}>
@@ -45,6 +46,12 @@ export default async function QuoteDetailPage({
             </Link>
             {writable && (
               <>
+                <form action={newQuoteVersion}>
+                  <input type="hidden" name="id" value={quote.id} />
+                  <Button variant="outline" type="submit">
+                    <Copy className="h-4 w-4" /> New version
+                  </Button>
+                </form>
                 <Link href={`/quotes/${quote.id}/edit`} className={buttonVariants({ variant: "outline" })}>
                   <Pencil className="h-4 w-4" /> Edit
                 </Link>
@@ -133,6 +140,29 @@ export default async function QuoteDetailPage({
           </CardHeader>
           <CardContent>
             <p className="whitespace-pre-wrap text-sm text-muted-foreground">{quote.notes}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {versions.length > 1 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Versions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="divide-y">
+              {versions.map((v) => (
+                <li key={v.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+                  <Link href={`/quotes/${v.id}`} className={v.id === quote.id ? "font-semibold" : "text-accent hover:underline"}>
+                    Version {v.version}{v.id === quote.id ? " (current)" : ""}
+                  </Link>
+                  <span className="flex items-center gap-3 text-muted-foreground">
+                    <QuoteStatusBadge status={v.status} />
+                    <span className="tabular-nums">{formatCurrency(Number(v.total), v.currency)}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </CardContent>
         </Card>
       )}

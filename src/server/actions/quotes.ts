@@ -9,6 +9,7 @@ import {
   updateQuote,
   deleteQuote,
   setQuoteStatus,
+  createQuoteVersion,
   type QuoteLineInput,
 } from "@/server/services/quotes";
 import { writeAudit } from "@/server/services/audit";
@@ -102,6 +103,16 @@ export async function removeQuote(formData: FormData): Promise<void> {
   await writeAudit({ orgId: user.orgId, actorId: user.id, action: "delete", entityType: "quote", entityId: id });
   revalidatePath("/quotes");
   redirect("/quotes");
+}
+
+export async function newQuoteVersion(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  if (!canWrite(user.role)) throw new Error("FORBIDDEN");
+  const id = formData.get("id") as string;
+  const newId = await createQuoteVersion(user.orgId, id);
+  revalidatePath("/quotes");
+  if (newId) redirect(`/quotes/${newId}/edit`);
+  redirect(`/quotes/${id}`);
 }
 
 export async function changeQuoteStatus(formData: FormData): Promise<void> {
