@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, Trash2, FileDown, Copy } from "lucide-react";
+import { Pencil, Trash2, FileDown, FileType, Copy } from "lucide-react";
 import { requireUser, canWrite } from "@/server/auth/require-user";
 import { getQuote, listQuoteVersions } from "@/server/services/quotes";
 import { removeQuote, changeQuoteStatus, newQuoteVersion } from "@/server/actions/quotes";
@@ -43,6 +43,9 @@ export default async function QuoteDetailPage({
           <div className="flex items-center gap-2">
             <Link href={`/quotes/${quote.id}/pdf`} className={buttonVariants({ variant: "outline" })}>
               <FileDown className="h-4 w-4" /> PDF
+            </Link>
+            <Link href={`/quotes/${quote.id}/word`} className={buttonVariants({ variant: "outline" })}>
+              <FileType className="h-4 w-4" /> Word
             </Link>
             {writable && (
               <>

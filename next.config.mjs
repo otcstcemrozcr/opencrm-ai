@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    serverComponentsExternalPackages: ["@node-rs/argon2", "postgres", "@react-pdf/renderer"],
+    serverComponentsExternalPackages: ["@node-rs/argon2", "postgres", "@react-pdf/renderer", "docx"],
   },
 };
 
