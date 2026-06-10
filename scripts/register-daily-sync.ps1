@@ -9,6 +9,7 @@
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 $script = Join-Path $repo 'scripts\daily-sync.ps1'
+$taskName = 'CyclopsDailySync-' + (Split-Path $repo -Leaf).Replace(' ','')
 
 $action  = New-ScheduledTaskAction -Execute 'powershell.exe' `
     -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$script`""
@@ -16,7 +17,7 @@ $trigger = New-ScheduledTaskTrigger -Daily -At 8:00am
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries `
     -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Minutes 15)
 
-Register-ScheduledTask -TaskName 'CyclopsDailySync' -Action $action -Trigger $trigger `
+Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger `
     -Settings $settings -Description 'Cyclops OS: daily GitHub project-follow sync (Watchtower)' -Force | Out-Null
 
-Write-Host "Registered task 'CyclopsDailySync' - daily 08:00 (StartWhenAvailable)." -ForegroundColor Green
+Write-Host "Registered task '$taskName' - daily 08:00 (StartWhenAvailable)." -ForegroundColor Green
