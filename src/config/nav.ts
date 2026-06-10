@@ -12,6 +12,7 @@ import {
   BarChart3,
   ShieldCheck,
   UserCog,
+  Building,
   type LucideIcon,
 } from "lucide-react";
 
@@ -36,5 +37,6 @@ export const navItems: NavItem[] = [
   { label: "Reports", href: "/reports", icon: BarChart3 },
   { label: "Duplicates", href: "/duplicates", icon: CopyCheck },
   { label: "Users", href: "/settings/users", icon: UserCog, adminOnly: true },
+  { label: "Organization", href: "/settings/organization", icon: Building, adminOnly: true },
   { label: "Audit log", href: "/audit", icon: ShieldCheck, adminOnly: true },
 ];
