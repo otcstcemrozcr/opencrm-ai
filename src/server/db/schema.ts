@@ -355,6 +355,29 @@ export const quoteStatusEnum = pgEnum("quote_status", [
 
 export const quoteLineKindEnum = pgEnum("quote_line_kind", ["product", "service"]);
 
+export const products = pgTable(
+  "products",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    sku: text("sku"),
+    kind: quoteLineKindEnum("kind").notNull().default("product"),
+    unitPrice: numeric("unit_price", { precision: 14, scale: 2 }).notNull().default("0"),
+    currency: text("currency").notNull().default("USD"),
+    taxRate: numeric("tax_rate", { precision: 5, scale: 2 }).notNull().default("0"),
+    description: text("description"),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    orgIdx: index("products_org_idx").on(t.orgId),
+  })
+);
+
 export const quotes = pgTable(
   "quotes",
   {
@@ -432,5 +455,6 @@ export type Note = typeof notes.$inferSelect;
 export type SavedView = typeof savedViews.$inferSelect;
 export type Quote = typeof quotes.$inferSelect;
 export type QuoteLine = typeof quoteLines.$inferSelect;
+export type Product = typeof products.$inferSelect;
 export type QuoteStatus = (typeof quoteStatusEnum.enumValues)[number];
 export type QuoteLineKind = (typeof quoteLineKindEnum.enumValues)[number];

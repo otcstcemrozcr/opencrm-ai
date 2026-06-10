@@ -24,10 +24,12 @@ type Line = {
 };
 
 type Option = { id: string; name: string };
+type ProductOption = { id: string; name: string; kind: "product" | "service"; unitPrice: string; taxRate: string };
 
 type Props = {
   accounts: Option[];
   opportunities: Option[];
+  products?: ProductOption[];
   quote?: {
     id: string;
     accountId: string | null;
@@ -57,6 +59,7 @@ function SubmitButton({ isEdit }: { isEdit: boolean }) {
 export function QuoteForm({
   accounts,
   opportunities,
+  products = [],
   quote,
   defaultAccountId,
   defaultOpportunityId,
@@ -70,6 +73,14 @@ export function QuoteForm({
   }
   function addLine() {
     setLines((prev) => [...prev, { ...emptyLine }]);
+  }
+  function addFromCatalog(productId: string) {
+    const p = products.find((x) => x.id === productId);
+    if (!p) return;
+    setLines((prev) => [
+      ...prev,
+      { kind: p.kind, name: p.name, description: "", qty: 1, unitPrice: Number(p.unitPrice), discount: 0, taxRate: Number(p.taxRate) },
+    ]);
   }
   function removeLine(i: number) {
     setLines((prev) => (prev.length === 1 ? prev : prev.filter((_, idx) => idx !== i)));
@@ -140,9 +151,23 @@ export function QuoteForm({
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">Line items</CardTitle>
-          <Button type="button" variant="outline" size="sm" onClick={addLine}>
-            <Plus className="h-4 w-4" /> Add line
-          </Button>
+          <div className="flex items-center gap-2">
+            {products.length > 0 && (
+              <Select
+                value=""
+                onChange={(e) => { if (e.target.value) { addFromCatalog(e.target.value); e.target.value = ""; } }}
+                className="h-9 w-48"
+              >
+                <option value="">+ From catalog…</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </Select>
+            )}
+            <Button type="button" variant="outline" size="sm" onClick={addLine}>
+              <Plus className="h-4 w-4" /> Add line
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {lines.map((l, i) => {

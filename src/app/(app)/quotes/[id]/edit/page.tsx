@@ -3,6 +3,7 @@ import { requireRole } from "@/server/auth/require-user";
 import { getQuote } from "@/server/services/quotes";
 import { listAccounts } from "@/server/services/accounts";
 import { listOpportunities } from "@/server/services/opportunities";
+import { listActiveProducts } from "@/server/services/products";
 import { PageHeader } from "@/components/crm/page-header";
 import { QuoteForm } from "@/components/crm/quote-form";
 
@@ -12,10 +13,11 @@ export default async function EditQuotePage({
   params: { id: string };
 }) {
   const user = await requireRole("rep");
-  const [quote, accounts, opps] = await Promise.all([
+  const [quote, accounts, opps, products] = await Promise.all([
     getQuote(user.orgId, params.id),
     listAccounts(user.orgId),
     listOpportunities(user.orgId),
+    listActiveProducts(user.orgId),
   ]);
   if (!quote) notFound();
 
@@ -25,6 +27,7 @@ export default async function EditQuotePage({
       <QuoteForm
         accounts={accounts.map((a) => ({ id: a.id, name: a.name }))}
         opportunities={opps.map((o) => ({ id: o.id, name: o.name }))}
+        products={products.map((p) => ({ id: p.id, name: p.name, kind: p.kind, unitPrice: p.unitPrice, taxRate: p.taxRate }))}
         quote={{
           id: quote.id,
           accountId: quote.accountId,
