@@ -24,6 +24,12 @@ const schema = z.object({
   industry: z.string().max(120).optional(),
   status: z.enum(["new", "working", "qualified", "unqualified", "converted"]),
   score: z.coerce.number().int().min(0).max(100),
+  rating: z.enum(["hot", "warm", "cold"]).optional().or(z.literal("")),
+  estimatedValue: z.coerce.number().min(0).optional(),
+  utmSource: z.string().max(120).optional(),
+  utmMedium: z.string().max(120).optional(),
+  utmCampaign: z.string().max(120).optional(),
+  doNotContact: z.coerce.boolean().optional(),
 });
 
 export async function saveLead(
@@ -44,6 +50,12 @@ export async function saveLead(
     industry: formData.get("industry") || undefined,
     status: formData.get("status") || "new",
     score: formData.get("score") || 0,
+    rating: formData.get("rating") || "",
+    estimatedValue: formData.get("estimatedValue") || undefined,
+    utmSource: formData.get("utmSource") || undefined,
+    utmMedium: formData.get("utmMedium") || undefined,
+    utmCampaign: formData.get("utmCampaign") || undefined,
+    doNotContact: formData.get("doNotContact") === "on",
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -59,6 +71,12 @@ export async function saveLead(
     industry: parsed.data.industry || null,
     status: parsed.data.status,
     score: parsed.data.score,
+    rating: (parsed.data.rating || null) as "hot" | "warm" | "cold" | null,
+    estimatedValue: parsed.data.estimatedValue ?? null,
+    utmSource: parsed.data.utmSource || null,
+    utmMedium: parsed.data.utmMedium || null,
+    utmCampaign: parsed.data.utmCampaign || null,
+    doNotContact: parsed.data.doNotContact ?? false,
   };
 
   let targetId = id;

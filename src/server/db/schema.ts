@@ -207,6 +207,12 @@ export const leads = pgTable(
     industry: text("industry"),
     status: leadStatusEnum("status").notNull().default("new"),
     score: integer("score").notNull().default(0),
+    rating: ratingEnum("rating"),
+    estimatedValue: numeric("estimated_value", { precision: 14, scale: 2 }),
+    utmSource: text("utm_source"),
+    utmMedium: text("utm_medium"),
+    utmCampaign: text("utm_campaign"),
+    doNotContact: boolean("do_not_contact").notNull().default(false),
     ownerId: uuid("owner_id").references(() => users.id, { onDelete: "set null" }),
     aiSummary: text("ai_summary"),
     convertedAccountId: uuid("converted_account_id").references(() => accounts.id, {

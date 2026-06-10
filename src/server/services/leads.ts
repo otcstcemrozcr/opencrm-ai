@@ -25,8 +25,28 @@ export type LeadInput = {
   industry?: string | null;
   status?: LeadStatus;
   score?: number;
+  rating?: "hot" | "warm" | "cold" | null;
+  estimatedValue?: number | null;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+  doNotContact?: boolean;
   ownerId?: string | null;
 };
+
+function leadExtra(input: LeadInput) {
+  return {
+    rating: input.rating ?? null,
+    estimatedValue:
+      input.estimatedValue === null || input.estimatedValue === undefined
+        ? null
+        : String(input.estimatedValue),
+    utmSource: input.utmSource || null,
+    utmMedium: input.utmMedium || null,
+    utmCampaign: input.utmCampaign || null,
+    doNotContact: input.doNotContact ?? false,
+  };
+}
 
 export async function listLeads(orgId: string, filters: LeadFilters = {}) {
   const conds: SQL[] = [eq(leads.orgId, orgId)];
@@ -75,6 +95,7 @@ export async function createLead(orgId: string, input: LeadInput) {
       status: input.status ?? "new",
       score: input.score ?? 0,
       ownerId: input.ownerId || null,
+      ...leadExtra(input),
     })
     .returning();
   return row;
@@ -94,6 +115,7 @@ export async function updateLead(orgId: string, id: string, input: LeadInput) {
       status: input.status ?? "new",
       score: input.score ?? 0,
       ownerId: input.ownerId || null,
+      ...leadExtra(input),
       updatedAt: new Date(),
     })
     .where(and(eq(leads.orgId, orgId), eq(leads.id, id)))

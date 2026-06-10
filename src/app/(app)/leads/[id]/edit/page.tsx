@@ -28,6 +28,12 @@ export default async function EditLeadPage({
           industry: lead.industry,
           status: lead.status,
           score: lead.score,
+          rating: lead.rating,
+          estimatedValue: lead.estimatedValue,
+          utmSource: lead.utmSource,
+          utmMedium: lead.utmMedium,
+          utmCampaign: lead.utmCampaign,
+          doNotContact: lead.doNotContact,
         }}
       />
     </div>

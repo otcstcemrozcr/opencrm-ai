@@ -65,6 +65,10 @@ export default async function LeadDetailPage({
           <CardContent className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
             <Field label="Status" value={<LeadStatusBadge status={lead.status} />} />
             <Field label="Score" value={String(lead.score)} />
+            <Field label="Rating" value={lead.rating ? <span className="capitalize">{lead.rating}</span> : null} />
+            <Field label="Estimated value" value={lead.estimatedValue ? `$${Number(lead.estimatedValue).toLocaleString("en-US")}` : null} />
+            {lead.doNotContact && <Field label="Compliance" value={<span className="text-destructive">Do not contact</span>} />}
+            <Field label="UTM" value={[lead.utmSource, lead.utmMedium, lead.utmCampaign].filter(Boolean).join(" / ") || null} />
             <Field label="Email" value={lead.email} />
             <Field label="Phone" value={lead.phone} />
             <Field label="Source" value={lead.source} />

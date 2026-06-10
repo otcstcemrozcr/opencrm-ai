@@ -23,8 +23,16 @@ type Props = {
     industry: string | null;
     status: (typeof STATUSES)[number];
     score: number;
+    rating: "hot" | "warm" | "cold" | null;
+    estimatedValue: string | null;
+    utmSource: string | null;
+    utmMedium: string | null;
+    utmCampaign: string | null;
+    doNotContact: boolean;
   };
 };
+
+const RATINGS = ["hot", "warm", "cold"] as const;
 
 function SubmitButton({ isEdit }: { isEdit: boolean }) {
   const { pending } = useFormStatus();
@@ -106,6 +114,45 @@ export function LeadForm({ lead }: Props) {
               />
             </div>
           </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="rating">Rating</Label>
+              <Select id="rating" name="rating" defaultValue={lead?.rating ?? ""}>
+                <option value="">—</option>
+                {RATINGS.map((r) => (
+                  <option key={r} value={r} className="capitalize">{r}</option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="estimatedValue">Estimated value</Label>
+              <Input id="estimatedValue" name="estimatedValue" type="number" min={0} step="0.01" defaultValue={lead?.estimatedValue ?? ""} />
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <div className="mb-2 text-sm font-medium text-muted-foreground">Attribution (UTM)</div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor="utmSource">Source</Label>
+                <Input id="utmSource" name="utmSource" defaultValue={lead?.utmSource ?? ""} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="utmMedium">Medium</Label>
+                <Input id="utmMedium" name="utmMedium" defaultValue={lead?.utmMedium ?? ""} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="utmCampaign">Campaign</Label>
+                <Input id="utmCampaign" name="utmCampaign" defaultValue={lead?.utmCampaign ?? ""} />
+              </div>
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="doNotContact" defaultChecked={lead?.doNotContact ?? false} />
+            Do not contact (GDPR/KVKK)
+          </label>
 
           {state.error && <p className="text-sm text-destructive">{state.error}</p>}
 
