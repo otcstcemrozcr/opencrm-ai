@@ -1,15 +1,20 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Pencil } from "lucide-react";
+import { headers } from "next/headers";
+import { Plus, Pencil, X } from "lucide-react";
 import { requireUser } from "@/server/auth/require-user";
 import { listUsersForAdmin } from "@/server/services/users";
 import { setUserActiveAction } from "@/server/actions/users";
+import { listPendingInvitations } from "@/server/services/invitations";
+import { revokeInvitationAction } from "@/server/actions/invitations";
+import { isEmailConfigured } from "@/server/email/send";
 import { PageHeader } from "@/components/crm/page-header";
 import { EmptyState } from "@/components/crm/empty-state";
 import { RoleMatrix } from "@/components/crm/role-matrix";
+import { InvitePanel } from "@/components/crm/invite-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -29,7 +34,16 @@ const ROLE_VARIANT: Record<string, "default" | "accent" | "success" | "warning">
 export default async function UsersPage() {
   const me = await requireUser();
   if (me.role !== "admin") redirect("/dashboard");
-  const rows = await listUsersForAdmin(me.orgId);
+  const [rows, invites] = await Promise.all([
+    listUsersForAdmin(me.orgId),
+    listPendingInvitations(me.orgId),
+  ]);
+
+  const h = headers();
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  const host = h.get("host") ?? "localhost:3000";
+  const origin = (process.env.NEXT_PUBLIC_APP_URL ?? `${proto}://${host}`).replace(/\/$/, "");
+  const emailConfigured = isEmailConfigured();
 
   return (
     <div className="space-y-6">
@@ -111,6 +125,57 @@ export default async function UsersPage() {
           </Table>
         </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Invitations</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <InvitePanel />
+
+          {!emailConfigured && (
+            <p className="text-xs text-muted-foreground">
+              Email delivery isn&apos;t configured (set <code>RESEND_API_KEY</code>). Invitations are
+              still created — share the generated link manually.
+            </p>
+          )}
+
+          {invites.length > 0 && (
+            <div>
+              <h4 className="mb-2 text-sm font-medium">Pending</h4>
+              <ul className="divide-y">
+                {invites.map((inv) => (
+                  <li key={inv.id} className="flex items-center justify-between gap-4 py-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{inv.email}</span>
+                        <Badge variant={ROLE_VARIANT[inv.role] ?? "default"} className="capitalize">
+                          {inv.role}
+                        </Badge>
+                      </div>
+                      <a
+                        href={`${origin}/invite/${inv.token}`}
+                        className="block truncate font-mono text-xs text-accent hover:underline"
+                      >
+                        {`${origin}/invite/${inv.token}`}
+                      </a>
+                      <span className="text-xs text-muted-foreground">
+                        Expires {inv.expiresAt.toLocaleDateString("en-US")}
+                      </span>
+                    </div>
+                    <form action={revokeInvitationAction}>
+                      <input type="hidden" name="id" value={inv.id} />
+                      <Button variant="ghost" size="sm" type="submit" aria-label="Revoke invitation">
+                        <X className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <RoleMatrix />
     </div>

@@ -134,6 +134,27 @@
       "when": 1781149717619,
       "tag": "0018_worthless_dormammu",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1781150791469,
+      "tag": "0019_young_silverclaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1781197684091,
+      "tag": "0020_panoramic_vance_astro",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1781198401890,
+      "tag": "0021_thin_vampiro",
+      "breakpoints": true
     }
   ]
 }

@@ -14,6 +14,8 @@ export type OrganizationInput = {
   website?: string | null;
   address?: string | null;
   taxNumber?: string | null;
+  telegramChatId?: string | null;
+  notificationsEnabled?: boolean;
 };
 
 export async function getOrganization(orgId: string) {
@@ -39,6 +41,8 @@ export async function updateOrganization(orgId: string, input: OrganizationInput
       website: input.website || null,
       address: input.address || null,
       taxNumber: input.taxNumber || null,
+      telegramChatId: input.telegramChatId || null,
+      notificationsEnabled: input.notificationsEnabled ?? true,
       updatedAt: new Date(),
     })
     .where(eq(organizations.id, orgId))

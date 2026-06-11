@@ -29,6 +29,8 @@ export default async function OrganizationSettingsPage() {
           website: org.website,
           address: org.address,
           taxNumber: org.taxNumber,
+          telegramChatId: org.telegramChatId,
+          notificationsEnabled: org.notificationsEnabled,
         }}
       />
     </div>

@@ -22,6 +22,8 @@ type Props = {
     website: string | null;
     address: string | null;
     taxNumber: string | null;
+    telegramChatId: string | null;
+    notificationsEnabled: boolean;
   };
 };
 
@@ -125,6 +127,32 @@ export function OrganizationForm({ org }: Props) {
             <div className="space-y-2">
               <Label htmlFor="address">Address</Label>
               <Textarea id="address" name="address" defaultValue={org.address ?? ""} />
+            </div>
+          </section>
+
+          <section className="space-y-4 border-t pt-6">
+            <h3 className="text-sm font-medium">Notifications</h3>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="notificationsEnabled"
+                defaultChecked={org.notificationsEnabled}
+                className="h-4 w-4"
+              />
+              Send the daily overdue-task digest
+            </label>
+            <div className="space-y-2">
+              <Label htmlFor="telegramChatId">Telegram chat ID</Label>
+              <Input
+                id="telegramChatId"
+                name="telegramChatId"
+                placeholder="-1001234567890"
+                defaultValue={org.telegramChatId ?? ""}
+              />
+              <p className="text-xs text-muted-foreground">
+                Optional. Add your bot to a channel/group and paste its chat ID to receive a digest there
+                (requires <code>TELEGRAM_BOT_TOKEN</code> on the server).
+              </p>
             </div>
           </section>
 

@@ -33,6 +33,8 @@ const schema = z.object({
   website: optionalUrl,
   address: z.string().trim().max(500).optional(),
   taxNumber: z.string().trim().max(100).optional(),
+  telegramChatId: z.string().trim().max(64).optional(),
+  notificationsEnabled: z.boolean().optional(),
 });
 
 export async function saveOrganization(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -49,6 +51,8 @@ export async function saveOrganization(_prev: FormState, formData: FormData): Pr
     website: formData.get("website") || "",
     address: formData.get("address") || undefined,
     taxNumber: formData.get("taxNumber") || undefined,
+    telegramChatId: formData.get("telegramChatId") || undefined,
+    notificationsEnabled: formData.get("notificationsEnabled") === "on",
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
@@ -63,6 +67,8 @@ export async function saveOrganization(_prev: FormState, formData: FormData): Pr
     website: parsed.data.website || null,
     address: parsed.data.address || null,
     taxNumber: parsed.data.taxNumber || null,
+    telegramChatId: parsed.data.telegramChatId || null,
+    notificationsEnabled: parsed.data.notificationsEnabled ?? true,
   });
   if (!updated) return { error: "Organization not found." };
 

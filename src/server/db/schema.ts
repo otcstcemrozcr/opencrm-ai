@@ -42,6 +42,8 @@ export const organizations = pgTable("organizations", {
   website: text("website"),
   address: text("address"),
   taxNumber: text("tax_number"),
+  telegramChatId: text("telegram_chat_id"),
+  notificationsEnabled: boolean("notifications_enabled").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -480,6 +482,50 @@ export const quoteLines = pgTable(
   })
 );
 
+export const invitations = pgTable(
+  "invitations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: userRoleEnum("role").notNull().default("rep"),
+    token: text("token").notNull(),
+    invitedByUserId: uuid("invited_by_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    tokenUnique: uniqueIndex("invitations_token_unique").on(t.token),
+    orgIdx: index("invitations_org_idx").on(t.orgId),
+  })
+);
+
+export const passwordResets = pgTable(
+  "password_resets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    token: text("token").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    tokenUnique: uniqueIndex("password_resets_token_unique").on(t.token),
+    userIdx: index("password_resets_user_idx").on(t.userId),
+  })
+);
+
 export const customFieldEntityEnum = pgEnum("custom_field_entity", [
   "account",
   "contact",
@@ -572,6 +618,8 @@ export type QuoteLine = typeof quoteLines.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type QuoteStatus = (typeof quoteStatusEnum.enumValues)[number];
 export type QuoteLineKind = (typeof quoteLineKindEnum.enumValues)[number];
+export type Invitation = typeof invitations.$inferSelect;
+export type PasswordReset = typeof passwordResets.$inferSelect;
 export type CustomFieldDef = typeof customFieldDefs.$inferSelect;
 export type CustomFieldValue = typeof customFieldValues.$inferSelect;
 export type CustomFieldEntity = (typeof customFieldEntityEnum.enumValues)[number];
