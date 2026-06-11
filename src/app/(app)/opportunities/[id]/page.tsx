@@ -6,12 +6,14 @@ import { getOpportunity } from "@/server/services/opportunities";
 import { listActivities } from "@/server/services/activities";
 import { getOpportunityInsight } from "@/server/ai/insight";
 import { listNotes } from "@/server/services/notes";
+import { getRecordFields } from "@/server/services/custom-fields";
 import { removeOpportunity } from "@/server/actions/opportunities";
 import { PageHeader } from "@/components/crm/page-header";
 import { StageBadge } from "@/components/crm/status-badges";
 import { InsightCallout } from "@/components/crm/insight-callout";
 import { ActivityPanel } from "@/components/crm/activity-panel";
 import { NotePanel } from "@/components/crm/note-panel";
+import { CustomFieldsPanel } from "@/components/crm/custom-fields-panel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
@@ -25,10 +27,11 @@ export default async function OpportunityDetailPage({
   const opp = await getOpportunity(user.orgId, params.id);
   if (!opp) notFound();
 
-  const [activities, insight, notes] = await Promise.all([
+  const [activities, insight, notes, customFields] = await Promise.all([
     listActivities(user.orgId, "opportunity", opp.id),
     getOpportunityInsight(user.orgId, opp.id),
     listNotes(user.orgId, "opportunity", opp.id),
+    getRecordFields(user.orgId, "opportunity", opp.id),
   ]);
   const writable = canWrite(user.role);
 
@@ -103,6 +106,12 @@ export default async function OpportunityDetailPage({
               completedAt: a.completedAt ? a.completedAt.toISOString() : null,
               createdAt: a.createdAt.toISOString(),
             }))}
+          />
+          <CustomFieldsPanel
+            entity="opportunity"
+            recordId={opp.id}
+            canWrite={writable}
+            fields={customFields}
           />
           <NotePanel
             relatedType="opportunity"

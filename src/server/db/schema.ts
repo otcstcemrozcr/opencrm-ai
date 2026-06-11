@@ -480,6 +480,70 @@ export const quoteLines = pgTable(
   })
 );
 
+export const customFieldEntityEnum = pgEnum("custom_field_entity", [
+  "account",
+  "contact",
+  "lead",
+  "opportunity",
+]);
+
+export const customFieldTypeEnum = pgEnum("custom_field_type", [
+  "text",
+  "number",
+  "date",
+  "select",
+  "checkbox",
+]);
+
+export const customFieldDefs = pgTable(
+  "custom_field_defs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    entity: customFieldEntityEnum("entity").notNull(),
+    key: text("key").notNull(), // stable slug, unique per entity
+    label: text("label").notNull(),
+    type: customFieldTypeEnum("type").notNull().default("text"),
+    options: text("options"), // JSON array of strings, for type=select
+    required: boolean("required").notNull().default(false),
+    sortOrder: integer("sort_order").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    keyUnique: uniqueIndex("custom_field_defs_key_unique").on(t.orgId, t.entity, t.key),
+    entityIdx: index("custom_field_defs_entity_idx").on(t.orgId, t.entity),
+  })
+);
+
+export const customFieldValues = pgTable(
+  "custom_field_values",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    fieldId: uuid("field_id")
+      .notNull()
+      .references(() => customFieldDefs.id, { onDelete: "cascade" }),
+    entity: customFieldEntityEnum("entity").notNull(),
+    recordId: uuid("record_id").notNull(),
+    value: text("value"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    fieldRecordUnique: uniqueIndex("custom_field_values_field_record_unique").on(
+      t.fieldId,
+      t.recordId
+    ),
+    recordIdx: index("custom_field_values_record_idx").on(t.orgId, t.entity, t.recordId),
+  })
+);
+
 export type Organization = typeof organizations.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
@@ -508,3 +572,7 @@ export type QuoteLine = typeof quoteLines.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type QuoteStatus = (typeof quoteStatusEnum.enumValues)[number];
 export type QuoteLineKind = (typeof quoteLineKindEnum.enumValues)[number];
+export type CustomFieldDef = typeof customFieldDefs.$inferSelect;
+export type CustomFieldValue = typeof customFieldValues.$inferSelect;
+export type CustomFieldEntity = (typeof customFieldEntityEnum.enumValues)[number];
+export type CustomFieldType = (typeof customFieldTypeEnum.enumValues)[number];

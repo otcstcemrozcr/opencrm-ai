@@ -6,9 +6,11 @@ import { getAccount } from "@/server/services/accounts";
 import { listContactsByAccount } from "@/server/services/contacts";
 import { listOpportunitiesByAccount } from "@/server/services/opportunities";
 import { listNotes } from "@/server/services/notes";
+import { getRecordFields } from "@/server/services/custom-fields";
 import { removeAccount } from "@/server/actions/accounts";
 import { PageHeader } from "@/components/crm/page-header";
 import { NotePanel } from "@/components/crm/note-panel";
+import { CustomFieldsPanel } from "@/components/crm/custom-fields-panel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -28,10 +30,11 @@ export default async function AccountDetailPage({
   const account = await getAccount(user.orgId, params.id);
   if (!account) notFound();
 
-  const [contacts, opps, notes] = await Promise.all([
+  const [contacts, opps, notes, customFields] = await Promise.all([
     listContactsByAccount(user.orgId, account.id),
     listOpportunitiesByAccount(user.orgId, account.id),
     listNotes(user.orgId, "account", account.id),
+    getRecordFields(user.orgId, "account", account.id),
   ]);
   const parent = account.parentAccountId
     ? await getAccount(user.orgId, account.parentAccountId)
@@ -195,6 +198,13 @@ export default async function AccountDetailPage({
               )}
             </CardContent>
           </Card>
+
+          <CustomFieldsPanel
+            entity="account"
+            recordId={account.id}
+            canWrite={writable}
+            fields={customFields}
+          />
 
           <NotePanel
             relatedType="account"

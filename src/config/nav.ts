@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   UserCog,
   Building,
+  SlidersHorizontal,
   type LucideIcon,
 } from "lucide-react";
 
@@ -38,5 +39,6 @@ export const navItems: NavItem[] = [
   { label: "Duplicates", href: "/duplicates", icon: CopyCheck },
   { label: "Users", href: "/settings/users", icon: UserCog, adminOnly: true },
   { label: "Organization", href: "/settings/organization", icon: Building, adminOnly: true },
+  { label: "Custom fields", href: "/settings/custom-fields", icon: SlidersHorizontal, adminOnly: true },
   { label: "Audit log", href: "/audit", icon: ShieldCheck, adminOnly: true },
 ];

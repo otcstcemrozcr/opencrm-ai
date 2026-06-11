@@ -5,9 +5,11 @@ import { requireUser, canWrite } from "@/server/auth/require-user";
 import { getContact } from "@/server/services/contacts";
 import { getAccount } from "@/server/services/accounts";
 import { listNotes } from "@/server/services/notes";
+import { getRecordFields } from "@/server/services/custom-fields";
 import { removeContact } from "@/server/actions/contacts";
 import { PageHeader } from "@/components/crm/page-header";
 import { NotePanel } from "@/components/crm/note-panel";
+import { CustomFieldsPanel } from "@/components/crm/custom-fields-panel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -24,7 +26,10 @@ export default async function ContactDetailPage({
     ? await getAccount(user.orgId, contact.accountId)
     : null;
   const writable = canWrite(user.role);
-  const notes = await listNotes(user.orgId, "contact", contact.id);
+  const [notes, customFields] = await Promise.all([
+    listNotes(user.orgId, "contact", contact.id),
+    getRecordFields(user.orgId, "contact", contact.id),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -81,7 +86,13 @@ export default async function ContactDetailPage({
         </CardContent>
       </Card>
 
-      <div className="max-w-2xl">
+      <div className="max-w-2xl space-y-6">
+        <CustomFieldsPanel
+          entity="contact"
+          recordId={contact.id}
+          canWrite={writable}
+          fields={customFields}
+        />
         <NotePanel
           relatedType="contact"
           relatedId={contact.id}
