@@ -16,6 +16,7 @@ import { NotesSummaryCard } from "@/components/crm/notes-summary";
 import { CustomFieldsPanel } from "@/components/crm/custom-fields-panel";
 import { LeadScoreCard } from "@/components/crm/lead-score-card";
 import { EmailComposePanel } from "@/components/crm/email-compose-panel";
+import { ApolloEnrichButton } from "@/components/crm/apollo-enrich-button";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -70,6 +71,8 @@ export default async function LeadDetailPage({
           {searchParams.error}
         </div>
       )}
+
+      {writable && !converted && <ApolloEnrichButton entity="lead" id={lead.id} />}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">

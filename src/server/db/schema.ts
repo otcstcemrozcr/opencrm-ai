@@ -505,6 +505,72 @@ export const invitations = pgTable(
   })
 );
 
+export const telegramDirectionEnum = pgEnum("telegram_direction", ["in", "out"]);
+
+export const telegramConversations = pgTable(
+  "telegram_conversations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    chatId: text("chat_id").notNull(),
+    username: text("username"),
+    firstName: text("first_name"),
+    lastName: text("last_name"),
+    linkedContactId: uuid("linked_contact_id").references(() => contacts.id, { onDelete: "set null" }),
+    linkedLeadId: uuid("linked_lead_id").references(() => leads.id, { onDelete: "set null" }),
+    lastMessageAt: timestamp("last_message_at", { withTimezone: true }),
+    lastMessagePreview: text("last_message_preview"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    chatUnique: uniqueIndex("telegram_conversations_chat_unique").on(t.orgId, t.chatId),
+    recentIdx: index("telegram_conversations_recent_idx").on(t.orgId, t.lastMessageAt),
+  })
+);
+
+export const telegramMessages = pgTable(
+  "telegram_messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    conversationId: uuid("conversation_id")
+      .notNull()
+      .references(() => telegramConversations.id, { onDelete: "cascade" }),
+    direction: telegramDirectionEnum("direction").notNull(),
+    text: text("text"),
+    telegramMessageId: text("telegram_message_id"),
+    senderUserId: uuid("sender_user_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    convIdx: index("telegram_messages_conv_idx").on(t.conversationId, t.createdAt),
+  })
+);
+
+/** Opaque deep-link tokens that route an inbound /start to an org (+ optional record). */
+export const telegramConnectTokens = pgTable(
+  "telegram_connect_tokens",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    token: text("token").notNull(),
+    contactId: uuid("contact_id").references(() => contacts.id, { onDelete: "set null" }),
+    leadId: uuid("lead_id").references(() => leads.id, { onDelete: "set null" }),
+    createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    tokenUnique: uniqueIndex("telegram_connect_tokens_token_unique").on(t.token),
+    orgIdx: index("telegram_connect_tokens_org_idx").on(t.orgId),
+  })
+);
+
 export const passwordResets = pgTable(
   "password_resets",
   {
@@ -620,6 +686,10 @@ export type QuoteStatus = (typeof quoteStatusEnum.enumValues)[number];
 export type QuoteLineKind = (typeof quoteLineKindEnum.enumValues)[number];
 export type Invitation = typeof invitations.$inferSelect;
 export type PasswordReset = typeof passwordResets.$inferSelect;
+export type TelegramConversation = typeof telegramConversations.$inferSelect;
+export type TelegramMessage = typeof telegramMessages.$inferSelect;
+export type TelegramConnectToken = typeof telegramConnectTokens.$inferSelect;
+export type TelegramDirection = (typeof telegramDirectionEnum.enumValues)[number];
 export type CustomFieldDef = typeof customFieldDefs.$inferSelect;
 export type CustomFieldValue = typeof customFieldValues.$inferSelect;
 export type CustomFieldEntity = (typeof customFieldEntityEnum.enumValues)[number];

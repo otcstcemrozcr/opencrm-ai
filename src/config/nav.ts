@@ -14,6 +14,8 @@ import {
   UserCog,
   Building,
   SlidersHorizontal,
+  MessagesSquare,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 
@@ -27,6 +29,7 @@ export type NavItem = {
 // MVP-0 modules + Phase 2 additions. Reporting/Campaigns land later.
 export const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Assistant", href: "/assistant", icon: Sparkles },
   { label: "Campaigns", href: "/campaigns", icon: Megaphone },
   { label: "Leads", href: "/leads", icon: Users },
   { label: "Opportunities", href: "/opportunities", icon: Target },
@@ -35,6 +38,7 @@ export const navItems: NavItem[] = [
   { label: "Activities", href: "/activities", icon: CalendarClock },
   { label: "Products", href: "/products", icon: Package },
   { label: "Quotes", href: "/quotes", icon: FileText },
+  { label: "Messages", href: "/messages", icon: MessagesSquare },
   { label: "Reports", href: "/reports", icon: BarChart3 },
   { label: "Duplicates", href: "/duplicates", icon: CopyCheck },
   { label: "Users", href: "/settings/users", icon: UserCog, adminOnly: true },

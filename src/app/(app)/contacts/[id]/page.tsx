@@ -13,6 +13,7 @@ import { NotePanel } from "@/components/crm/note-panel";
 import { CustomFieldsPanel } from "@/components/crm/custom-fields-panel";
 import { NotesSummaryCard } from "@/components/crm/notes-summary";
 import { EmailComposePanel } from "@/components/crm/email-compose-panel";
+import { ApolloEnrichButton } from "@/components/crm/apollo-enrich-button";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -59,6 +60,8 @@ export default async function ContactDetailPage({
           ) : null
         }
       />
+
+      {writable && <ApolloEnrichButton entity="contact" id={contact.id} />}
 
       <Card className="max-w-2xl">
         <CardHeader>
