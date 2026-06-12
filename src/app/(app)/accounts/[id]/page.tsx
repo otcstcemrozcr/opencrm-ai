@@ -7,9 +7,11 @@ import { listContactsByAccount } from "@/server/services/contacts";
 import { listOpportunitiesByAccount } from "@/server/services/opportunities";
 import { listNotes } from "@/server/services/notes";
 import { getRecordFields } from "@/server/services/custom-fields";
+import { summarizeNotes } from "@/server/ai/notes-summary";
 import { removeAccount } from "@/server/actions/accounts";
 import { PageHeader } from "@/components/crm/page-header";
 import { NotePanel } from "@/components/crm/note-panel";
+import { NotesSummaryCard } from "@/components/crm/notes-summary";
 import { CustomFieldsPanel } from "@/components/crm/custom-fields-panel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +42,7 @@ export default async function AccountDetailPage({
     ? await getAccount(user.orgId, account.parentAccountId)
     : null;
   const writable = canWrite(user.role);
+  const notesSummary = await summarizeNotes(notes);
 
   return (
     <div className="space-y-6">
@@ -205,6 +208,8 @@ export default async function AccountDetailPage({
             canWrite={writable}
             fields={customFields}
           />
+
+          {notesSummary && <NotesSummaryCard summary={notesSummary} />}
 
           <NotePanel
             relatedType="account"

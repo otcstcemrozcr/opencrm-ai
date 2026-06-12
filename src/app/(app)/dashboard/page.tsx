@@ -4,9 +4,12 @@ import {
   getDashboardKpis,
   getOverdueOpportunities,
   getOverdueActivities,
+  getFocusThisWeek,
 } from "@/server/services/dashboard";
+import { summarizeFocus } from "@/server/ai/focus-summary";
 import { PageHeader } from "@/components/crm/page-header";
 import { KpiCard } from "@/components/crm/kpi-card";
+import { FocusCard } from "@/components/crm/focus-card";
 import { StageBadge } from "@/components/crm/status-badges";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
@@ -15,11 +18,13 @@ const pct = (v: number | null) => (v === null ? "—" : `${Math.round(v * 100)}%
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const [kpis, overdueOpps, overdueActs] = await Promise.all([
+  const [kpis, overdueOpps, overdueActs, focus] = await Promise.all([
     getDashboardKpis(user.orgId),
     getOverdueOpportunities(user.orgId),
     getOverdueActivities(user.orgId),
+    getFocusThisWeek(user.orgId),
   ]);
+  const focusSummary = await summarizeFocus(user.name, focus);
 
   return (
     <div className="space-y-6">
@@ -27,6 +32,8 @@ export default async function DashboardPage() {
         title="Dashboard"
         description={`Welcome back, ${user.name}. Here is your revenue picture.`}
       />
+
+      <FocusCard focus={focus} summary={focusSummary} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Open Leads" value={String(kpis.openLeads)} />

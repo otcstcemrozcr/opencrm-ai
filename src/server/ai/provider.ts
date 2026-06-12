@@ -7,7 +7,10 @@ import "server-only";
  */
 export interface AiProvider {
   readonly name: string;
+  /** Short single-line phrasing (≤120 tokens). */
   generateLine(system: string, user: string): Promise<string>;
+  /** Longer free-form text (e.g. an email draft or summary). */
+  generateText(system: string, user: string, maxTokens?: number): Promise<string>;
 }
 
 class AnthropicProvider implements AiProvider {
@@ -17,7 +20,7 @@ class AnthropicProvider implements AiProvider {
     private model = "claude-haiku-4-5-20251001"
   ) {}
 
-  async generateLine(system: string, user: string): Promise<string> {
+  private async complete(system: string, user: string, maxTokens: number): Promise<string> {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -27,7 +30,7 @@ class AnthropicProvider implements AiProvider {
       },
       body: JSON.stringify({
         model: this.model,
-        max_tokens: 120,
+        max_tokens: maxTokens,
         system,
         messages: [{ role: "user", content: user }],
       }),
@@ -37,6 +40,14 @@ class AnthropicProvider implements AiProvider {
     }
     const data = (await res.json()) as { content?: { text?: string }[] };
     return data.content?.[0]?.text?.trim() ?? "";
+  }
+
+  generateLine(system: string, user: string): Promise<string> {
+    return this.complete(system, user, 120);
+  }
+
+  generateText(system: string, user: string, maxTokens = 600): Promise<string> {
+    return this.complete(system, user, maxTokens);
   }
 }
 

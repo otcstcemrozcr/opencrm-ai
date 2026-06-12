@@ -6,10 +6,13 @@ import { getContact } from "@/server/services/contacts";
 import { getAccount } from "@/server/services/accounts";
 import { listNotes } from "@/server/services/notes";
 import { getRecordFields } from "@/server/services/custom-fields";
+import { summarizeNotes } from "@/server/ai/notes-summary";
 import { removeContact } from "@/server/actions/contacts";
 import { PageHeader } from "@/components/crm/page-header";
 import { NotePanel } from "@/components/crm/note-panel";
 import { CustomFieldsPanel } from "@/components/crm/custom-fields-panel";
+import { NotesSummaryCard } from "@/components/crm/notes-summary";
+import { EmailComposePanel } from "@/components/crm/email-compose-panel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -30,6 +33,7 @@ export default async function ContactDetailPage({
     listNotes(user.orgId, "contact", contact.id),
     getRecordFields(user.orgId, "contact", contact.id),
   ]);
+  const notesSummary = await summarizeNotes(notes);
 
   return (
     <div className="space-y-6">
@@ -87,12 +91,22 @@ export default async function ContactDetailPage({
       </Card>
 
       <div className="max-w-2xl space-y-6">
+        {writable && (
+          <EmailComposePanel
+            relatedType="contact"
+            relatedId={contact.id}
+            recipientName={contact.name}
+            company={account?.name ?? null}
+            defaultTo={contact.email ?? ""}
+          />
+        )}
         <CustomFieldsPanel
           entity="contact"
           recordId={contact.id}
           canWrite={writable}
           fields={customFields}
         />
+        {notesSummary && <NotesSummaryCard summary={notesSummary} />}
         <NotePanel
           relatedType="contact"
           relatedId={contact.id}

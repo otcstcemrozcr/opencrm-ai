@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/crm/empty-state";
 import { FilterBar } from "@/components/crm/filter-bar";
 import { SavedViews } from "@/components/crm/saved-views";
 import { SelectableTable } from "@/components/crm/selectable-table";
-import { LeadStatusBadge } from "@/components/crm/status-badges";
+import { LeadStatusBadge, LeadScoreBadge } from "@/components/crm/status-badges";
 import { buttonVariants } from "@/components/ui/button";
 
 const LEAD_STATUSES = ["new", "working", "qualified", "unqualified", "converted"];
@@ -84,7 +84,7 @@ export default async function LeadsPage({
               <span className="text-muted-foreground">{l.contactName ?? "—"}</span>,
               <span className="text-muted-foreground">{l.source ?? "—"}</span>,
               <LeadStatusBadge status={l.status} />,
-              <span className="tabular-nums">{l.score}</span>,
+              <LeadScoreBadge score={l.score} />,
             ],
           }))}
         />

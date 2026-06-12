@@ -116,15 +116,11 @@ export function LeadForm({ lead, campaigns = [] }: Props) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="score">Lead score (0–100)</Label>
-              <Input
-                id="score"
-                name="score"
-                type="number"
-                min={0}
-                max={100}
-                defaultValue={lead?.score ?? 0}
-              />
+              <Label htmlFor="score">Lead score</Label>
+              <Input id="score" type="number" value={lead?.score ?? 0} readOnly disabled />
+              <p className="text-xs text-muted-foreground">
+                Calculated automatically from rules when you save.
+              </p>
             </div>
           </div>
 

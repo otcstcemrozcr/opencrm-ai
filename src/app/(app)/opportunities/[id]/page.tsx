@@ -7,6 +7,7 @@ import { listActivities } from "@/server/services/activities";
 import { getOpportunityInsight } from "@/server/ai/insight";
 import { listNotes } from "@/server/services/notes";
 import { getRecordFields } from "@/server/services/custom-fields";
+import { summarizeNotes } from "@/server/ai/notes-summary";
 import { removeOpportunity } from "@/server/actions/opportunities";
 import { PageHeader } from "@/components/crm/page-header";
 import { StageBadge } from "@/components/crm/status-badges";
@@ -14,6 +15,7 @@ import { InsightCallout } from "@/components/crm/insight-callout";
 import { ActivityPanel } from "@/components/crm/activity-panel";
 import { NotePanel } from "@/components/crm/note-panel";
 import { CustomFieldsPanel } from "@/components/crm/custom-fields-panel";
+import { NotesSummaryCard } from "@/components/crm/notes-summary";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
@@ -34,6 +36,7 @@ export default async function OpportunityDetailPage({
     getRecordFields(user.orgId, "opportunity", opp.id),
   ]);
   const writable = canWrite(user.role);
+  const notesSummary = await summarizeNotes(notes);
 
   return (
     <div className="space-y-6">
@@ -113,6 +116,7 @@ export default async function OpportunityDetailPage({
             canWrite={writable}
             fields={customFields}
           />
+          {notesSummary && <NotesSummaryCard summary={notesSummary} />}
           <NotePanel
             relatedType="opportunity"
             relatedId={opp.id}

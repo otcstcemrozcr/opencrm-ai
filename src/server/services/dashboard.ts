@@ -78,6 +78,54 @@ export async function getDashboardKpis(orgId: string): Promise<DashboardKpis> {
   };
 }
 
+export type FocusThisWeek = {
+  overdueActivities: number;
+  dueThisWeek: number;
+  closingThisWeek: number;
+  closingThisWeekValue: number;
+  staleDeals: number;
+  hotLeads: number;
+};
+
+/**
+ * "Focus this week" — deterministic, org-scoped counts for the week ahead.
+ * Every number is SQL; AI may only phrase a summary, never compute (docs/07).
+ */
+export async function getFocusThisWeek(orgId: string): Promise<FocusThisWeek> {
+  const [actAgg] = await db
+    .select({
+      overdue: sql<number>`count(*) filter (where ${activities.completedAt} is null and ${activities.dueAt} < now())`,
+      dueWeek: sql<number>`count(*) filter (where ${activities.completedAt} is null and ${activities.dueAt} >= now() and ${activities.dueAt} <= now() + interval '7 days')`,
+    })
+    .from(activities)
+    .where(eq(activities.orgId, orgId));
+
+  const [oppAgg] = await db
+    .select({
+      closing: sql<number>`count(*) filter (where ${opportunities.stage} not in ('won','lost') and ${opportunities.expectedClose} >= current_date and ${opportunities.expectedClose} <= current_date + interval '7 days')`,
+      closingValue: sql<string>`coalesce(sum(${opportunities.value}) filter (where ${opportunities.stage} not in ('won','lost') and ${opportunities.expectedClose} >= current_date and ${opportunities.expectedClose} <= current_date + interval '7 days'), 0)`,
+      stale: sql<number>`count(*) filter (where ${opportunities.stage} not in ('won','lost') and coalesce(${opportunities.lastActivityAt}, ${opportunities.createdAt}) < now() - interval '21 days')`,
+    })
+    .from(opportunities)
+    .where(eq(opportunities.orgId, orgId));
+
+  const [leadAgg] = await db
+    .select({
+      hot: sql<number>`count(*) filter (where ${leads.status} not in ('converted','unqualified') and ${leads.score} >= 70)`,
+    })
+    .from(leads)
+    .where(eq(leads.orgId, orgId));
+
+  return {
+    overdueActivities: num(actAgg?.overdue),
+    dueThisWeek: num(actAgg?.dueWeek),
+    closingThisWeek: num(oppAgg?.closing),
+    closingThisWeekValue: num(oppAgg?.closingValue),
+    staleDeals: num(oppAgg?.stale),
+    hotLeads: num(leadAgg?.hot),
+  };
+}
+
 export async function getOverdueOpportunities(orgId: string, limit = 8) {
   return db
     .select({

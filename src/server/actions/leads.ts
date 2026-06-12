@@ -10,6 +10,7 @@ import {
   deleteLead,
   convertLead,
 } from "@/server/services/leads";
+import { recomputeLeadScore } from "@/server/services/lead-score";
 import { writeAudit } from "@/server/services/audit";
 
 export type FormState = { error?: string };
@@ -91,8 +92,20 @@ export async function saveLead(
     targetId = created.id;
   }
 
+  // Score is computed deterministically from rules — any manual value is overridden.
+  if (targetId) await recomputeLeadScore(user.orgId, targetId);
+
   revalidatePath("/leads");
   redirect(`/leads/${targetId}`);
+}
+
+export async function recalcLeadScoreAction(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  if (!canWrite(user.role)) throw new Error("FORBIDDEN");
+  const id = formData.get("id") as string;
+  await recomputeLeadScore(user.orgId, id);
+  revalidatePath(`/leads/${id}`);
+  revalidatePath("/leads");
 }
 
 export async function removeLead(formData: FormData): Promise<void> {
